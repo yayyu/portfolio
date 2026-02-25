@@ -48,7 +48,7 @@ export default function Home() {
 
       {/* Paper balls — z-20, randomized over hero text */}
       {balls.map((ball, i) => (
-        <div key={i} className="absolute z-20" style={ball.style}>
+        <div key={i} className="absolute z-20" style={{...ball.style, width: '220px', height: '220px'}}>
           <img src="/images/paper-ball.png" alt="" className="w-[220px] h-[220px]" />
         </div>
       ))}
