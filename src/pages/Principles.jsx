@@ -45,7 +45,9 @@ export default function Principles() {
               src={card.icon}
               alt=""
               draggable={false}
-              style={{ width: '95px', height: '95px' }}
+              style={card.icon === '/images/icon-scribble.svg'
+                ? { width: '174px', height: '98px' }
+                : { width: '95px', height: '95px' }}
             />
             <p
               className={`font-instrument-serif text-center text-[42px] leading-[40px] tracking-[-0.84px] ${card.textClass}`}
