@@ -21,19 +21,6 @@ html, body, #root {
   padding: 0;
 }
 
-@keyframes peel-up {
-  0%   { transform: rotateX(0deg); animation-timing-function: ease-in; }
-  40%  { transform: rotateX(30deg); animation-timing-function: ease-in; }
-  70%  { transform: rotateX(60deg); animation-timing-function: ease-out; }
-  100% { transform: rotateX(85deg); }
-}
-
-@keyframes peel-down {
-  0%   { transform: rotateX(85deg); animation-timing-function: ease-in; }
-  30%  { transform: rotateX(60deg); animation-timing-function: ease-out; }
-  100% { transform: rotateX(0deg); }
-}
-
 @keyframes bounce-soft {
   0%, 100% { transform: translateY(0); }
   50% { transform: translateY(6px); }

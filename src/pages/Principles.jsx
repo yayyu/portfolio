@@ -76,12 +76,9 @@ export default function Principles() {
                 position: 'absolute',
                 inset: 0,
                 top: '3px',
-                width: '351px',
-                height: '342px',
                 transformOrigin: 'top center',
-                animation: flipped === i
-                  ? 'peel-up 0.5s ease forwards'
-                  : 'peel-down 0.4s ease forwards',
+                transform: flipped === i ? 'rotateX(85deg)' : 'rotateX(0deg)',
+                transition: 'transform 0.5s cubic-bezier(0.4, 0, 0.2, 1)',
                 transformStyle: 'preserve-3d',
                 zIndex: 1,
               }}
@@ -93,6 +90,7 @@ export default function Principles() {
                   inset: 0,
                   filter: card.filter,
                   ...stickyStyle,
+                  backfaceVisibility: 'hidden',
                 }}
               >
                 <img
