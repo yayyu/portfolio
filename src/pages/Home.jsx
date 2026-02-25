@@ -29,6 +29,12 @@ export default function Home() {
       { style: { top: rand(midY + pad, H - size - pad), left: rand(pad, midX - size - pad), transform: rot() } },
       // Bottom-right quadrant
       { style: { top: rand(midY + pad, H - size - pad), left: rand(midX + pad, W - size - pad), transform: rot() } },
+      // Left edge — bleeds off left, random y below nav
+      { style: { top: rand(navH + pad, H - size - pad), left: rand(-size * 0.65, -size * 0.35), transform: rot() } },
+      // Right edge — bleeds off right, random y below nav
+      { style: { top: rand(navH + pad, H - size - pad), left: rand(W - size * 0.65, W - size * 0.35), transform: rot() } },
+      // Bottom edge — bleeds off bottom, random x
+      { style: { top: rand(H - size * 0.65, H - size * 0.35), left: rand(pad, W - size - pad), transform: rot() } },
     ];
   }, []);
 
