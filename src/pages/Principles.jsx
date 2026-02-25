@@ -80,7 +80,6 @@ export default function Principles() {
                 transform: flipped === i ? 'rotateX(85deg)' : 'rotateX(0deg)',
                 transition: 'transform 0.5s cubic-bezier(0.4, 0, 0.2, 1)',
                 transformStyle: 'preserve-3d',
-                backfaceVisibility: 'hidden',
                 zIndex: 1,
               }}
             >
