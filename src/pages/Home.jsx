@@ -10,36 +10,28 @@ export default function Home() {
   }, []);
 
   const balls = useMemo(() => {
-    const rand = (min, max) => min >= max ? min : Math.random() * (max - min) + min;
+    const rand = (min, max) => Math.random() * (max - min) + min;
     const rot = () => `rotate(${rand(-180, 180)}deg)`;
-    const W = window.innerWidth;
-    const H = window.innerHeight;
-    const size = 280;
-    const navH = 80;
-    const pad = 10;
-    const midX = W / 2;
-    const midY = navH + (H - navH) / 2;
-
-    return [
-      // Top-left quadrant
-      { style: { top: rand(navH + pad, midY - size - pad), left: rand(pad, midX - size - pad), transform: rot() } },
-      // Top-right quadrant
-      { style: { top: rand(navH + pad, midY - size - pad), left: rand(midX + pad, W - size - pad), transform: rot() } },
-      // Bottom-left quadrant
-      { style: { top: rand(midY + pad, H - size - pad), left: rand(pad, midX - size - pad), transform: rot() } },
-      // Bottom-right quadrant
-      { style: { top: rand(midY + pad, H - size - pad), left: rand(midX + pad, W - size - pad), transform: rot() } },
-      // Left edge — bleeds off left, random y below nav
-      { style: { top: rand(navH + pad, H - size - pad), left: rand(-size * 0.65, -size * 0.35), transform: rot() } },
-      // Right edge — bleeds off right, random y below nav
-      { style: { top: rand(navH + pad, H - size - pad), left: rand(W - size * 0.65, W - size * 0.35), transform: rot() } },
-      // Bottom edge — bleeds off bottom, random x
-      { style: { top: rand(H - size * 0.65, H - size * 0.35), left: rand(pad, W - size - pad), transform: rot() } },
+    const positions = [
+      { xMin: 0.02, xMax: 0.25, yMin: 0.1,  yMax: 0.45 },
+      { xMin: 0.55, xMax: 0.80, yMin: 0.08, yMax: 0.40 },
+      { xMin: 0.10, xMax: 0.40, yMin: 0.45, yMax: 0.75 },
+      { xMin: 0.50, xMax: 0.78, yMin: 0.42, yMax: 0.72 },
+      { xMin: 0.25, xMax: 0.55, yMin: 0.10, yMax: 0.35 },
+      { xMin: 0.60, xMax: 0.90, yMin: 0.55, yMax: 0.80 },
+      { xMin: -0.05, xMax: 0.15, yMin: 0.55, yMax: 0.85 },
     ];
+    return positions.map(p => ({
+      style: {
+        top: `${rand(p.yMin * 100, p.yMax * 100)}vh`,
+        left: `${rand(p.xMin * 100, p.xMax * 100)}vw`,
+        transform: rot(),
+      }
+    }));
   }, []);
 
   return (
-    <div className="bg-cream relative h-screen w-full overflow-hidden">
+    <div className="bg-cream relative h-screen w-full">
 
       {/* Paper balls — z-20, randomized over hero text */}
       {balls.map((ball, i) => (
