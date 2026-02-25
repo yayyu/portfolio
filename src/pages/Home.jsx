@@ -68,8 +68,7 @@ export default function Home() {
       b.vy *= FRICTION;
       b.x += b.vx;
       b.y += b.vy;
-      const speed = Math.sqrt(b.vx * b.vx + b.vy * b.vy);
-      b.rotation += speed * 0.05;
+      b.rotation += Math.hypot(b.vx, b.vy) * 0.05;
     }
 
     // Ball-ball collisions
@@ -180,15 +179,15 @@ export default function Home() {
       {ballsRef.current.map(ball => (
         <div
           key={ball.id}
-          className="absolute z-20 cursor-grab active:cursor-grabbing select-none"
+          className="absolute z-20 select-none"
           style={{
-            top: 0,
-            left: 0,
+            top: `${ball.y}px`,
+            left: `${ball.x}px`,
             width: '220px',
             height: '220px',
-            transform: `translate(${ball.x}px, ${ball.y}px) rotate(${ball.rotation}deg)`,
-            willChange: 'transform',
+            transform: `rotate(${ball.rotation}deg)`,
             touchAction: 'none',
+            cursor: 'grab',
           }}
           onPointerDown={e => onPointerDown(e, ball.id)}
           onPointerMove={e => onPointerMove(e, ball.id)}
