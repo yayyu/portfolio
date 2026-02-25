@@ -78,13 +78,10 @@ export default function Principles() {
                 width: '351px',
                 height: '342px',
                 transformOrigin: 'top center',
-                transform: flipped === i ? 'rotateX(180deg)' : 'rotateX(0deg)',
-                transition: 'transform 0.6s ease-in-out, box-shadow 0.6s ease-in-out',
+                transform: flipped === i ? 'rotateX(85deg)' : 'rotateX(0deg)',
+                transition: 'transform 0.6s ease-in-out',
                 transformStyle: 'preserve-3d',
                 zIndex: 1,
-                boxShadow: flipped === i
-                  ? '0px 20px 40px rgba(0,0,0,0.25), 0px 8px 16px rgba(0,0,0,0.15)'
-                  : '0px 2px 6px rgba(0,0,0,0.08)',
               }}
             >
               <div
