@@ -13,23 +13,23 @@ export default function Home() {
     const rand = (min, max) => Math.random() * (max - min) + min;
     const rot = () => `rotate(${rand(-180, 180)}deg)`;
     return [
-      // Left side
-      { style: { top: `${rand(15, 45)}%`, left: -100, transform: rot() } },
-      // Right side
-      { style: { top: `${rand(30, 65)}%`, right: -100, transform: rot() } },
-      // Bottom-left
-      { style: { bottom: -100, left: `${rand(5, 30)}%`, transform: rot() } },
-      // Bottom-right
-      { style: { bottom: -100, right: `${rand(5, 30)}%`, transform: rot() } },
+      // Top-left quadrant of text
+      { style: { top: `${rand(10, 33)}%`, left: `${rand(5, 25)}%`, transform: rot() } },
+      // Top-right quadrant of text
+      { style: { top: `${rand(10, 33)}%`, left: `${rand(50, 70)}%`, transform: rot() } },
+      // Bottom-left quadrant of text
+      { style: { top: `${rand(50, 70)}%`, left: `${rand(5, 25)}%`, transform: rot() } },
+      // Bottom-right quadrant of text
+      { style: { top: `${rand(50, 70)}%`, left: `${rand(50, 70)}%`, transform: rot() } },
     ];
   }, []);
 
   return (
     <div className="bg-cream relative h-screen w-full overflow-hidden">
 
-      {/* Paper balls — z-0, randomized edge positions */}
+      {/* Paper balls — z-20, randomized over hero text */}
       {balls.map((ball, i) => (
-        <div key={i} className="absolute z-0" style={ball.style}>
+        <div key={i} className="absolute z-20" style={ball.style}>
           <img src="/images/paper-ball.png" alt="" className="w-[280px] h-[280px]" />
         </div>
       ))}
