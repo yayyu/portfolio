@@ -1,7 +1,10 @@
 import { useState, useEffect } from 'react';
 
 export default function Navbar() {
-  const [state, setState] = useState('top'); // 'top' | 'hidden' | 'shown'
+  const [state, setState] = useState(() => {
+    if (window.scrollY < 24) return 'top';
+    return 'shown';
+  }); // 'top' | 'hidden' | 'shown'
 
   useEffect(() => {
     let lastY = window.scrollY;
