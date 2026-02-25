@@ -23,12 +23,11 @@ export default function Navbar() {
       >
         <div
           style={{
-            width: '110vw',
             height: '120px',
             backgroundImage: 'url(/images/nav-texture.png)',
-            backgroundSize: 'cover',
-            backgroundPosition: 'center',
-            clipPath: 'polygon(0 0, 100% 0, 100% 72%, 98% 88%, 95% 74%, 92% 90%, 88% 75%, 85% 91%, 81% 76%, 77% 89%, 73% 75%, 69% 90%, 65% 76%, 61% 88%, 57% 74%, 53% 89%, 49% 75%, 45% 90%, 41% 76%, 37% 88%, 33% 74%, 29% 89%, 25% 75%, 21% 88%, 17% 74%, 13% 89%, 9% 75%, 5% 87%, 2% 73%, 0 85%)',
+            backgroundSize: '100% 100%',
+            backgroundRepeat: 'no-repeat',
+            mixBlendMode: 'multiply',
           }}
         />
       </div>
