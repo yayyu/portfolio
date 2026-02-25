@@ -77,7 +77,6 @@ export default function Principles() {
                 inset: 0,
                 width: '351px',
                 height: '342px',
-                transform: 'scale(0.95)',
                 transformOrigin: 'top center',
                 animation: flipped === i
                   ? 'peel-up 0.5s ease forwards'
