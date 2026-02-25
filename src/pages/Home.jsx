@@ -64,8 +64,7 @@ export default function Home() {
           <p>Systems thinking–driven</p>
           <p className="italic">product &amp; interaction designer</p>
           <p>shaping research, scattered signals,</p>
-          <p>and early exploration into focused experiences</p>
-          <p><span className="italic text-sage">worth building.</span></p>
+          <p>and early exploration into focused experiences <span className="italic text-sage">worth building.</span></p>
         </div>
       </div>
 
