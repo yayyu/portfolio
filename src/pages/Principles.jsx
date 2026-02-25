@@ -75,6 +75,7 @@ export default function Principles() {
               style={{
                 position: 'absolute',
                 inset: 0,
+                top: '3px',
                 width: '351px',
                 height: '342px',
                 transformOrigin: 'top center',
