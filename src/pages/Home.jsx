@@ -12,22 +12,42 @@ export default function Home() {
   const balls = useMemo(() => {
     const rand = (min, max) => Math.random() * (max - min) + min;
     const rot = () => `rotate(${rand(-180, 180)}deg)`;
-    const positions = [
-      { xMin: 0.02, xMax: 0.25, yMin: 0.1,  yMax: 0.45 },
-      { xMin: 0.55, xMax: 0.80, yMin: 0.08, yMax: 0.40 },
-      { xMin: 0.10, xMax: 0.40, yMin: 0.45, yMax: 0.75 },
-      { xMin: 0.50, xMax: 0.78, yMin: 0.42, yMax: 0.72 },
-      { xMin: 0.25, xMax: 0.55, yMin: 0.10, yMax: 0.35 },
-      { xMin: 0.60, xMax: 0.90, yMin: 0.55, yMax: 0.80 },
-      { xMin: -0.05, xMax: 0.15, yMin: 0.55, yMax: 0.85 },
-    ];
-    return positions.map(p => ({
-      style: {
-        top: `${rand(p.yMin * 100, p.yMax * 100)}vh`,
-        left: `${rand(p.xMin * 100, p.xMax * 100)}vw`,
-        transform: rot(),
+    const W = window.innerWidth;
+    const H = window.innerHeight - 80; // subtract nav height
+    const cols = 3;
+    const rows = 3;
+    const cellW = W / cols;
+    const cellH = H / rows;
+    const ballSize = 280;
+    const padding = 20;
+
+    // Create all 9 cells, shuffle, pick first 7
+    const cells = [];
+    for (let row = 0; row < rows; row++) {
+      for (let col = 0; col < cols; col++) {
+        cells.push({ row, col });
       }
-    }));
+    }
+    // Fisher-Yates shuffle
+    for (let i = cells.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [cells[i], cells[j]] = [cells[j], cells[i]];
+    }
+    const chosen = cells.slice(0, 7);
+
+    return chosen.map(({ row, col }) => {
+      const xMin = col * cellW + padding;
+      const xMax = (col + 1) * cellW - ballSize - padding;
+      const yMin = 80 + row * cellH + padding;
+      const yMax = 80 + (row + 1) * cellH - ballSize - padding;
+      return {
+        style: {
+          top: `${rand(Math.min(yMin, yMax), Math.max(yMin, yMax))}px`,
+          left: `${rand(Math.min(xMin, xMax), Math.max(xMin, xMax))}px`,
+          transform: rot(),
+        }
+      };
+    });
   }, []);
 
   return (
