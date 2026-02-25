@@ -1,7 +1,54 @@
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
+
+const BALL_SIZE = 220;
+const FRICTION = 0.97;
+const RESTITUTION = 0.6;
+
+function generateBalls() {
+  const rand = (min, max) => Math.random() * (max - min) + min;
+  const W = window.innerWidth;
+  const H = window.innerHeight;
+  const navH = 80;
+  const margin = 30;
+  const count = 7;
+  const placed = [];
+  let id = 0;
+
+  const overlaps = (x, y) =>
+    placed.some(p =>
+      Math.abs(p.x - x) < BALL_SIZE + margin &&
+      Math.abs(p.y - y) < BALL_SIZE + margin
+    );
+
+  let attempts = 0;
+  while (placed.length < count && attempts < 1000) {
+    const x = rand(-BALL_SIZE * 0.3, W - BALL_SIZE * 0.7);
+    const y = rand(navH, H - BALL_SIZE * 0.7);
+    if (!overlaps(x, y)) {
+      placed.push({
+        id: id++,
+        x, y,
+        vx: 0, vy: 0,
+        rotation: rand(-180, 180),
+        isDragging: false,
+        dragOffsetX: 0,
+        dragOffsetY: 0,
+      });
+    }
+    attempts++;
+  }
+  return placed;
+}
 
 export default function Home() {
   const [scrolled, setScrolled] = useState(false);
+
+  const ballsRef = useRef(null);
+  if (!ballsRef.current) ballsRef.current = generateBalls();
+
+  const [, forceUpdate] = useState(0);
+  const rafRef = useRef(null);
+  const dragRef = useRef(null); // { id, lastX, lastY, lastTime, vx, vy }
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 0);
@@ -9,47 +56,145 @@ export default function Home() {
     return () => window.removeEventListener('scroll', onScroll);
   }, []);
 
-  const balls = useMemo(() => {
-    const rand = (min, max) => Math.random() * (max - min) + min;
-    const rot = () => `rotate(${rand(-180, 180)}deg)`;
+  const tick = useCallback(() => {
     const W = window.innerWidth;
     const H = window.innerHeight;
-    const navH = 80;
-    const size = 220;
-    const margin = 30; // minimum gap between balls
-    const count = 7;
-    const placed = [];
+    const balls = ballsRef.current;
 
-    const overlaps = (x, y) =>
-      placed.some(p =>
-        Math.abs(p.x - x) < size + margin &&
-        Math.abs(p.y - y) < size + margin
-      );
-
-    let attempts = 0;
-    while (placed.length < count && attempts < 1000) {
-      const x = rand(-size * 0.3, W - size * 0.7); // allow slight edge bleed
-      const y = rand(navH, H - size * 0.7);
-      if (!overlaps(x, y)) placed.push({ x, y });
-      attempts++;
+    // Physics step
+    for (const b of balls) {
+      if (b.isDragging) continue;
+      b.vx *= FRICTION;
+      b.vy *= FRICTION;
+      b.x += b.vx;
+      b.y += b.vy;
+      const speed = Math.sqrt(b.vx * b.vx + b.vy * b.vy);
+      b.rotation += speed * 0.05;
     }
 
-    return placed.map(({ x, y }) => ({
-      style: {
-        top: `${y}px`,
-        left: `${x}px`,
-        transform: rot(),
+    // Ball-ball collisions
+    for (let i = 0; i < balls.length; i++) {
+      for (let j = i + 1; j < balls.length; j++) {
+        const a = balls[i];
+        const b = balls[j];
+        const dx = b.x - a.x;
+        const dy = b.y - a.y;
+        const dist = Math.sqrt(dx * dx + dy * dy) || 0.01;
+        if (dist >= BALL_SIZE) continue;
+
+        const nx = dx / dist;
+        const ny = dy / dist;
+        const overlap = BALL_SIZE - dist;
+
+        // Positional correction
+        if (!a.isDragging && !b.isDragging) {
+          a.x -= nx * overlap * 0.5; a.y -= ny * overlap * 0.5;
+          b.x += nx * overlap * 0.5; b.y += ny * overlap * 0.5;
+        } else if (a.isDragging) {
+          b.x += nx * overlap; b.y += ny * overlap;
+        } else {
+          a.x -= nx * overlap; a.y -= ny * overlap;
+        }
+
+        // Velocity impulse — use drag velocity for dragging ball so pushed balls fly
+        const d = dragRef.current;
+        const avx = a.isDragging ? (d?.id === a.id ? d.vx : 0) : a.vx;
+        const avy = a.isDragging ? (d?.id === a.id ? d.vy : 0) : a.vy;
+        const bvx = b.isDragging ? (d?.id === b.id ? d.vx : 0) : b.vx;
+        const bvy = b.isDragging ? (d?.id === b.id ? d.vy : 0) : b.vy;
+        const dvn = (bvx - avx) * nx + (bvy - avy) * ny;
+        if (dvn >= 0) continue;
+
+        if (!a.isDragging && !b.isDragging) {
+          const imp = -(1 + RESTITUTION) * dvn / 2;
+          a.vx -= imp * nx; a.vy -= imp * ny;
+          b.vx += imp * nx; b.vy += imp * ny;
+        } else if (a.isDragging) {
+          const imp = -(1 + RESTITUTION) * dvn;
+          b.vx += imp * nx; b.vy += imp * ny;
+        } else {
+          const imp = -(1 + RESTITUTION) * dvn;
+          a.vx -= imp * nx; a.vy -= imp * ny;
+        }
       }
-    }));
+    }
+
+    // Remove completely out-of-bounds balls
+    ballsRef.current = balls.filter(b =>
+      b.isDragging || !(b.x + BALL_SIZE < 0 || b.x > W || b.y + BALL_SIZE < 0 || b.y > H)
+    );
+
+    forceUpdate(n => n + 1);
+    rafRef.current = requestAnimationFrame(tick);
+  }, []);
+
+  useEffect(() => {
+    rafRef.current = requestAnimationFrame(tick);
+    return () => cancelAnimationFrame(rafRef.current);
+  }, [tick]);
+
+  const onPointerDown = useCallback((e, id) => {
+    e.preventDefault();
+    e.currentTarget.setPointerCapture(e.pointerId);
+    const ball = ballsRef.current.find(b => b.id === id);
+    if (!ball) return;
+    ball.isDragging = true;
+    ball.vx = 0;
+    ball.vy = 0;
+    ball.dragOffsetX = e.clientX - ball.x;
+    ball.dragOffsetY = e.clientY - ball.y;
+    dragRef.current = { id, lastX: e.clientX, lastY: e.clientY, lastTime: performance.now(), vx: 0, vy: 0 };
+  }, []);
+
+  const onPointerMove = useCallback((e, id) => {
+    const d = dragRef.current;
+    if (!d || d.id !== id) return;
+    const ball = ballsRef.current.find(b => b.id === id);
+    if (!ball || !ball.isDragging) return;
+    ball.x = e.clientX - ball.dragOffsetX;
+    ball.y = e.clientY - ball.dragOffsetY;
+    const now = performance.now();
+    const dt = Math.max(1, now - d.lastTime);
+    d.vx = (e.clientX - d.lastX) / dt * 16;
+    d.vy = (e.clientY - d.lastY) / dt * 16;
+    d.lastX = e.clientX;
+    d.lastY = e.clientY;
+    d.lastTime = now;
+  }, []);
+
+  const onPointerUp = useCallback((e, id) => {
+    const d = dragRef.current;
+    if (!d || d.id !== id) return;
+    const ball = ballsRef.current.find(b => b.id === id);
+    if (!ball) return;
+    ball.isDragging = false;
+    ball.vx = d.vx;
+    ball.vy = d.vy;
+    dragRef.current = null;
   }, []);
 
   return (
     <div className="bg-cream relative h-screen w-full">
 
-      {/* Paper balls — z-20, randomized over hero text */}
-      {balls.map((ball, i) => (
-        <div key={i} className="absolute z-20" style={{...ball.style, width: '220px', height: '220px'}}>
-          <img src="/images/paper-ball.png" alt="" className="w-[220px] h-[220px]" />
+      {/* Paper balls — physics-driven, draggable */}
+      {ballsRef.current.map(ball => (
+        <div
+          key={ball.id}
+          className="absolute z-20 cursor-grab active:cursor-grabbing select-none"
+          style={{
+            top: 0,
+            left: 0,
+            width: '220px',
+            height: '220px',
+            transform: `translate(${ball.x}px, ${ball.y}px) rotate(${ball.rotation}deg)`,
+            willChange: 'transform',
+            touchAction: 'none',
+          }}
+          onPointerDown={e => onPointerDown(e, ball.id)}
+          onPointerMove={e => onPointerMove(e, ball.id)}
+          onPointerUp={e => onPointerUp(e, ball.id)}
+        >
+          <img src="/images/paper-ball.png" alt="" className="w-[220px] h-[220px]" draggable={false} />
         </div>
       ))}
 
