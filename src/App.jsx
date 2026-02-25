@@ -1,7 +1,13 @@
 import Home from './pages/Home'
+import Principles from './pages/Principles'
 
 function App() {
-  return <Home />
+  return (
+    <>
+      <Home />
+      <Principles />
+    </>
+  )
 }
 
 export default App
