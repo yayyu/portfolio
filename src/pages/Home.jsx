@@ -147,6 +147,7 @@ export default function Home() {
   }, []);
 
   const onPointerMove = useCallback((e, id) => {
+    e.preventDefault();
     const d = dragRef.current;
     if (!d || d.id !== id) return;
     const ball = ballsRef.current.find(b => b.id === id);
@@ -177,7 +178,7 @@ export default function Home() {
   }, []);
 
   return (
-    <div className="bg-cream relative h-screen w-full">
+    <div className="bg-cream relative h-screen w-full" style={{ touchAction: 'none', overflow: 'hidden' }}>
 
       {/* Paper balls — physics-driven, draggable */}
       {ballsRef.current.map(ball => (
