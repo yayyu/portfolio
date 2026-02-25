@@ -204,13 +204,14 @@ export default function Home() {
 
       {/* Nav scroll backdrop — torn paper strip that slides down on scroll */}
       <div
-        className="absolute left-0 w-full z-[9] transition-transform duration-300"
+        className="fixed left-0 top-0 w-full z-[9] transition-transform duration-500 ease-in-out"
         style={{
-          top: 0,
           transform: scrolled ? 'translateY(0)' : 'translateY(-100%)',
           height: '90px',
-          background: '#fffdf9',
-          clipPath: 'polygon(0 0, 100% 0, 100% 70%, 97% 85%, 94% 72%, 90% 88%, 86% 74%, 82% 90%, 78% 76%, 74% 91%, 70% 77%, 66% 88%, 62% 74%, 58% 89%, 54% 75%, 50% 90%, 46% 76%, 42% 88%, 38% 73%, 34% 87%, 30% 74%, 26% 89%, 22% 75%, 18% 88%, 14% 73%, 10% 86%, 6% 72%, 3% 85%, 0 70%)',
+          backgroundImage: 'url(/images/nav-texture.png)',
+          backgroundSize: 'cover',
+          backgroundPosition: 'center',
+          clipPath: 'polygon(0 0, 100% 0, 100% 72%, 98% 88%, 95% 74%, 92% 90%, 88% 75%, 85% 91%, 81% 76%, 77% 89%, 73% 75%, 69% 90%, 65% 76%, 61% 88%, 57% 74%, 53% 89%, 49% 75%, 45% 90%, 41% 76%, 37% 88%, 33% 74%, 29% 89%, 25% 75%, 21% 88%, 17% 74%, 13% 89%, 9% 75%, 5% 87%, 2% 73%, 0 85%)',
         }}
       />
 
