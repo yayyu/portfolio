@@ -13,15 +13,18 @@ export default function Navbar() {
     <>
       {/* Scroll backdrop — torn paper strip */}
       <div
-        className="fixed left-0 top-0 w-full z-[29]"
+        className="fixed top-0 z-[29]"
         style={{
-          transform: scrolled ? 'translateY(0)' : 'translateY(-100%)',
+          left: '-5vw',
+          width: '110vw',
+          transform: scrolled ? 'translateY(-100%)' : 'translateY(0)',
           transition: 'transform 500ms ease-in-out',
         }}
       >
         <div
           style={{
-            height: '90px',
+            width: '110vw',
+            height: '120px',
             backgroundImage: 'url(/images/nav-texture.png)',
             backgroundSize: 'cover',
             backgroundPosition: 'center',
@@ -31,7 +34,13 @@ export default function Navbar() {
       </div>
 
       {/* Nav */}
-      <nav className="fixed top-0 left-0 w-full flex items-center justify-between px-12 py-5 z-30">
+      <nav
+        className="fixed top-0 left-0 w-full flex items-center justify-between px-12 py-5 z-30"
+        style={{
+          transform: scrolled ? 'translateY(-100%)' : 'translateY(0)',
+          transition: 'transform 500ms ease-in-out',
+        }}
+      >
         <p className="font-instrument-serif text-ink text-[48px] tracking-[-4.8px]">yaying.</p>
         <div className="flex gap-10 font-instrument-serif text-ink text-[36px] tracking-[-1.8px]">
           <span>work</span>
