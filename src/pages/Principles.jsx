@@ -44,7 +44,7 @@ export default function Principles() {
         {cards.map((card, i) => (
           <div
             key={i}
-            style={{ position: 'relative', width: '351px', height: '342px', perspective: '1000px' }}
+            style={{ position: 'relative', width: '351px', height: '342px', perspective: '1200px' }}
             onMouseEnter={() => setFlipped(i)}
             onMouseLeave={() => setFlipped(null)}
           >
@@ -75,18 +75,21 @@ export default function Principles() {
               style={{
                 position: 'absolute',
                 inset: 0,
+                width: '351px',
+                height: '342px',
                 transformOrigin: 'top center',
                 transform: flipped === i ? 'rotateX(180deg)' : 'rotateX(0deg)',
-                transition: 'transform 0.6s ease-in-out',
+                transition: 'transform 0.6s ease-in-out, box-shadow 0.6s ease-in-out',
                 transformStyle: 'preserve-3d',
                 zIndex: 1,
+                boxShadow: flipped === i
+                  ? '0px 20px 40px rgba(0,0,0,0.25), 0px 8px 16px rgba(0,0,0,0.15)'
+                  : '0px 2px 6px rgba(0,0,0,0.08)',
               }}
             >
               <div
                 className="flex flex-col items-center justify-center gap-4 p-8"
                 style={{
-                  backfaceVisibility: 'hidden',
-                  WebkitBackfaceVisibility: 'hidden',
                   position: 'absolute',
                   inset: 0,
                   filter: card.filter,
