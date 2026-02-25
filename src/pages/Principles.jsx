@@ -49,18 +49,25 @@ export default function Principles() {
             onMouseLeave={() => setFlipped(null)}
           >
             {/* Back card — always visible underneath, never moves */}
-            <div
-              className="flex items-center justify-center p-8"
-              style={{
-                position: 'absolute',
-                inset: 0,
-                filter: card.filter,
-                ...stickyStyle,
-              }}
-            >
-              <p className={`font-instrument-serif text-[24px] text-center tracking-[-0.48px] ${card.textClass}`}>
-                {card.back}
-              </p>
+            <div style={{ position: 'absolute', inset: 0 }}>
+              {/* Filtered background */}
+              <div
+                style={{
+                  position: 'absolute',
+                  inset: 0,
+                  backgroundImage: 'url(/images/sticky-note-bottom.png)',
+                  backgroundSize: '100% 100%',
+                  backgroundRepeat: 'no-repeat',
+                  backgroundPosition: 'center',
+                  filter: card.filter,
+                }}
+              />
+              {/* Unfiltered text */}
+              <div className="flex items-center justify-center p-8" style={{ position: 'absolute', inset: 0 }}>
+                <p className={`font-instrument-serif text-[24px] text-center tracking-[-0.48px] ${card.textClass}`}>
+                  {card.back}
+                </p>
+              </div>
             </div>
 
             {/* Front card — flips forward on hover */}
