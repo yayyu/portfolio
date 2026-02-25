@@ -84,12 +84,19 @@ export default function Principles() {
               }}
             >
               <div
-                className="flex flex-col items-center justify-center gap-4 p-8"
                 style={{
                   position: 'absolute',
                   inset: 0,
                   filter: card.filter,
                   ...stickyStyle,
+                  display: 'flex',
+                  flexDirection: 'column',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  gap: '16px',
+                  padding: '32px',
+                  opacity: flipped === i ? 0 : 1,
+                  transition: 'opacity 0.2s ease',
                 }}
               >
                 <img
