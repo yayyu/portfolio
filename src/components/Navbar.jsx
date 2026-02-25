@@ -14,6 +14,7 @@ export default function Navbar() {
       const y = window.scrollY;
       const delta = y - lastY;
       lastY = y;
+      const inHero = y < window.innerHeight;
 
       if (y < 24) {
         downDistance = 0;
@@ -21,14 +22,20 @@ export default function Navbar() {
         return;
       }
 
+      if (inHero) {
+        // In hero: backdrop always visible, nav never hides
+        downDistance = 0;
+        setState('shown');
+        return;
+      }
+
+      // Past hero section
       if (delta > 0) {
-        // scrolling down
         downDistance += delta;
         if (downDistance > window.innerHeight * 0.5) {
           setState('hidden');
         }
       } else {
-        // scrolling up — reset counter and show nav
         downDistance = 0;
         setState('shown');
       }
