@@ -2,4 +2,16 @@
 
 @theme {
   --font-instrument-serif: 'Instrument Serif', serif;
+  --color-cream: #fffdf9;
+  --color-sage: #78b299;
+}
+
+*, *::before, *::after {
+  box-sizing: border-box;
+}
+
+html, body, #root {
+  height: 100%;
+  margin: 0;
+  padding: 0;
 }
