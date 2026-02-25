@@ -1,6 +1,6 @@
 export default function Home() {
   return (
-    <div className="bg-[#fffdf9] relative h-screen w-full overflow-hidden">
+    <div className="bg-cream relative h-screen w-full overflow-hidden">
 
       {/* Paper balls — z-0, bleed off edges */}
       {/* Top-left */}
@@ -41,9 +41,10 @@ export default function Home() {
              style={{fontSize: 'clamp(2.5rem, 5.5vw, 6.25rem)', lineHeight: 1.2}}>
           <p>Systems thinking–driven</p>
           <p className="italic">product &amp; interaction designer</p>
+          <p>shaping research, scattered signals, and early exploration</p>
           <p>
-            <span>shaping research, scattered signals, and early exploration into focused experiences </span>
-            <span className="italic text-[#78b299]">worth building.</span>
+            <span>into focused experiences </span>
+            <span className="italic text-sage">worth building.</span>
           </p>
         </div>
       </div>
