@@ -13,41 +13,34 @@ export default function Home() {
     const rand = (min, max) => Math.random() * (max - min) + min;
     const rot = () => `rotate(${rand(-180, 180)}deg)`;
     const W = window.innerWidth;
-    const H = window.innerHeight - 80; // subtract nav height
-    const cols = 3;
-    const rows = 3;
-    const cellW = W / cols;
-    const cellH = H / rows;
-    const ballSize = 280;
-    const padding = 20;
+    const H = window.innerHeight;
+    const navH = 80;
+    const size = 220;
+    const margin = 30; // minimum gap between balls
+    const count = 7;
+    const placed = [];
 
-    // Create all 9 cells, shuffle, pick first 7
-    const cells = [];
-    for (let row = 0; row < rows; row++) {
-      for (let col = 0; col < cols; col++) {
-        cells.push({ row, col });
+    const overlaps = (x, y) =>
+      placed.some(p =>
+        Math.abs(p.x - x) < size + margin &&
+        Math.abs(p.y - y) < size + margin
+      );
+
+    let attempts = 0;
+    while (placed.length < count && attempts < 1000) {
+      const x = rand(-size * 0.3, W - size * 0.7); // allow slight edge bleed
+      const y = rand(navH, H - size * 0.7);
+      if (!overlaps(x, y)) placed.push({ x, y });
+      attempts++;
+    }
+
+    return placed.map(({ x, y }) => ({
+      style: {
+        top: `${y}px`,
+        left: `${x}px`,
+        transform: rot(),
       }
-    }
-    // Fisher-Yates shuffle
-    for (let i = cells.length - 1; i > 0; i--) {
-      const j = Math.floor(Math.random() * (i + 1));
-      [cells[i], cells[j]] = [cells[j], cells[i]];
-    }
-    const chosen = cells.slice(0, 7);
-
-    return chosen.map(({ row, col }) => {
-      const xMin = col * cellW + padding;
-      const xMax = (col + 1) * cellW - ballSize - padding;
-      const yMin = 80 + row * cellH + padding;
-      const yMax = 80 + (row + 1) * cellH - ballSize - padding;
-      return {
-        style: {
-          top: `${rand(Math.min(yMin, yMax), Math.max(yMin, yMax))}px`,
-          left: `${rand(Math.min(xMin, xMax), Math.max(xMin, xMax))}px`,
-          transform: rot(),
-        }
-      };
-    });
+    }));
   }, []);
 
   return (
@@ -56,7 +49,7 @@ export default function Home() {
       {/* Paper balls — z-20, randomized over hero text */}
       {balls.map((ball, i) => (
         <div key={i} className="absolute z-20" style={ball.style}>
-          <img src="/images/paper-ball.png" alt="" className="w-[280px] h-[280px]" />
+          <img src="/images/paper-ball.png" alt="" className="w-[220px] h-[220px]" />
         </div>
       ))}
 
