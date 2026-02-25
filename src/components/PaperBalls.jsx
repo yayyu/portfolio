@@ -172,7 +172,7 @@ export default function PaperBalls() {
       {ballsRef.current.map(ball => (
         <div
           key={ball.id}
-          className="fixed z-20 select-none"
+          className="absolute z-20 select-none"
           style={{
             top: `${ball.y}px`,
             left: `${ball.x}px`,
