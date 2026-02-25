@@ -121,7 +121,7 @@ export default function Home() {
 
     // Remove completely out-of-bounds balls
     ballsRef.current = balls.filter(b =>
-      b.isDragging || !(b.x + BALL_SIZE < 0 || b.x > W || b.y + BALL_SIZE < 0 || b.y > H)
+      b.isDragging || !(b.x < -300 || b.x > window.innerWidth + 300 || b.y < -300 || b.y > window.innerHeight + 300)
     );
 
     forceUpdate(n => n + 1);

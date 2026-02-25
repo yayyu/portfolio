@@ -1,16 +1,19 @@
 const cards = [
   {
     filter: 'sepia(1) saturate(0.6) hue-rotate(10deg)',
+    textClass: 'text-olive',
     icon: '/images/icon-eye.svg',
     text: 'Problems rarely live where they first appear',
   },
   {
     filter: 'sepia(1) saturate(0.5) hue-rotate(120deg)',
+    textClass: 'text-pine',
     icon: '/images/icon-scribble.svg',
     text: 'Design should intervene at leverage points',
   },
   {
     filter: 'sepia(1) saturate(0.4) hue-rotate(330deg)',
+    textClass: 'text-terra',
     icon: '/images/icon-box.svg',
     text: 'Clarity emerges through testing',
   },
@@ -18,7 +21,7 @@ const cards = [
 
 export default function Principles() {
   return (
-    <section className="w-full bg-cream py-24 px-8">
+    <section className="w-full bg-cream pt-48 pb-24 px-8">
       <h2 className="font-instrument-serif text-ink text-center text-[clamp(2rem,4vw,3.5rem)] tracking-tight mb-16">
         My principles for designing in complex systems
       </h2>
@@ -38,19 +41,17 @@ export default function Principles() {
               filter: card.filter,
             }}
           >
-            {/* Counter-filter restores natural color for icon and text */}
-            <div
-              className="flex flex-col items-center text-center font-instrument-serif gap-4"
-              style={{ filter: 'sepia(0) saturate(1) hue-rotate(0deg) brightness(0.6)' }}
+            <img
+              src={card.icon}
+              alt=""
+              draggable={false}
+              style={{ width: '95px', height: '95px' }}
+            />
+            <p
+              className={`font-instrument-serif text-center text-[42px] leading-[40px] tracking-[-0.84px] ${card.textClass}`}
             >
-              <img
-                src={card.icon}
-                alt=""
-                draggable={false}
-                style={{ width: '95px', height: '95px' }}
-              />
-              <p className="text-[1.35rem] leading-snug">{card.text}</p>
-            </div>
+              {card.text}
+            </p>
           </div>
         ))}
       </div>
