@@ -5,14 +5,12 @@ import Navbar from './components/Navbar'
 
 function App() {
   return (
-    <>
+    <div style={{ overflowX: 'hidden', position: 'relative' }}>
       <Navbar />
-      <div style={{ position: 'relative', minHeight: '100vh', overflow: 'visible' }}>
-        <PaperBalls />
-        <Home />
-        <Principles />
-      </div>
-    </>
+      <PaperBalls />
+      <Home />
+      <Principles />
+    </div>
   )
 }
 
