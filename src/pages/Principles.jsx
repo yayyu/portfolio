@@ -78,8 +78,9 @@ export default function Principles() {
                 width: '351px',
                 height: '342px',
                 transformOrigin: 'top center',
-                transform: flipped === i ? 'rotateX(85deg)' : 'rotateX(0deg)',
-                transition: 'transform 0.6s ease-in-out',
+                animation: flipped === i
+                  ? 'peel-up 0.5s ease forwards'
+                  : 'peel-down 0.4s ease forwards',
                 transformStyle: 'preserve-3d',
                 zIndex: 1,
               }}
