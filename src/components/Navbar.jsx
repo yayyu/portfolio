@@ -5,18 +5,29 @@ export default function Navbar() {
 
   useEffect(() => {
     let lastY = window.scrollY;
+    let downDistance = 0;
 
     const onScroll = () => {
       const y = window.scrollY;
-      const goingDown = y > lastY;
+      const delta = y - lastY;
       lastY = y;
 
       if (y < 24) {
-        setState('top');       // at very top — clean, no backdrop
-      } else if (goingDown) {
-        setState('hidden');    // scrolling down — hide nav entirely
+        downDistance = 0;
+        setState('top');
+        return;
+      }
+
+      if (delta > 0) {
+        // scrolling down
+        downDistance += delta;
+        if (downDistance > window.innerHeight * 0.5) {
+          setState('hidden');
+        }
       } else {
-        setState('shown');     // scrolling up — show nav with paper backdrop
+        // scrolling up — reset counter and show nav
+        downDistance = 0;
+        setState('shown');
       }
     };
 
