@@ -1,35 +1,35 @@
 import { useState, useEffect } from 'react';
 
 export default function Navbar() {
-  const [state, setState] = useState('top'); // 'top' | 'shown' | 'hidden'
+  const [state, setState] = useState('top'); // 'top' | 'hidden' | 'shown'
 
   useEffect(() => {
     let lastY = window.scrollY;
+
     const onScroll = () => {
       const y = window.scrollY;
       const goingDown = y > lastY;
       lastY = y;
 
       if (y < 24) {
-        setState('top');
-      } else if (goingDown && y > window.innerHeight) {
-        setState('hidden');
-      } else if (!goingDown) {
-        setState('shown');
+        setState('top');       // at very top — clean, no backdrop
+      } else if (goingDown) {
+        setState('hidden');    // scrolling down — hide nav entirely
       } else {
-        setState('shown');
+        setState('shown');     // scrolling up — show nav with paper backdrop
       }
     };
+
     window.addEventListener('scroll', onScroll, { passive: true });
     return () => window.removeEventListener('scroll', onScroll);
   }, []);
 
   const navTransform = state === 'hidden' ? 'translateY(-100%)' : 'translateY(0)';
-  const backdropTransform = state === 'top' ? 'translateY(-100%)' : state === 'hidden' ? 'translateY(-100%)' : 'translateY(0)';
+  const backdropTransform = state === 'shown' ? 'translateY(0)' : 'translateY(-100%)';
 
   return (
     <>
-      {/* Paper backdrop — only visible when state is 'shown' */}
+      {/* Paper backdrop — slides down only when scrolling up */}
       <div
         className="fixed top-0 z-[29]"
         style={{
@@ -50,7 +50,7 @@ export default function Navbar() {
         />
       </div>
 
-      {/* Nav — always visible except when hidden */}
+      {/* Nav */}
       <nav
         className="fixed top-0 left-0 w-full flex items-center justify-between px-12 py-5 z-30"
         style={{
