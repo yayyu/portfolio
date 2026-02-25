@@ -1,4 +1,14 @@
+import { useState, useEffect } from 'react';
+
 export default function Home() {
+  const [scrolled, setScrolled] = useState(false);
+
+  useEffect(() => {
+    const onScroll = () => setScrolled(window.scrollY > 0);
+    window.addEventListener('scroll', onScroll, { passive: true });
+    return () => window.removeEventListener('scroll', onScroll);
+  }, []);
+
   return (
     <div className="bg-cream relative h-screen w-full overflow-hidden">
 
@@ -24,10 +34,22 @@ export default function Home() {
         <img src="/images/paper-ball.png" alt="" className="w-[280px] h-[280px]" />
       </div>
 
+      {/* Nav scroll backdrop — torn paper strip that slides down on scroll */}
+      <div
+        className="absolute left-0 w-full z-[9] transition-transform duration-300"
+        style={{
+          top: 0,
+          transform: scrolled ? 'translateY(0)' : 'translateY(-100%)',
+          height: '90px',
+          background: '#fffdf9',
+          clipPath: 'polygon(0 0, 100% 0, 100% 70%, 97% 85%, 94% 72%, 90% 88%, 86% 74%, 82% 90%, 78% 76%, 74% 91%, 70% 77%, 66% 88%, 62% 74%, 58% 89%, 54% 75%, 50% 90%, 46% 76%, 42% 88%, 38% 73%, 34% 87%, 30% 74%, 26% 89%, 22% 75%, 18% 88%, 14% 73%, 10% 86%, 6% 72%, 3% 85%, 0 70%)',
+        }}
+      />
+
       {/* Nav */}
       <nav className="absolute top-0 left-0 w-full flex items-center justify-between px-12 py-5 z-10">
-        <p className="font-instrument-serif text-[#120000] text-[48px] tracking-[-4.8px]">yaying.</p>
-        <div className="flex gap-10 font-instrument-serif text-[#120000] text-[36px] tracking-[-1.8px]">
+        <p className="font-instrument-serif text-ink text-[48px] tracking-[-4.8px]">yaying.</p>
+        <div className="flex gap-10 font-instrument-serif text-ink text-[36px] tracking-[-1.8px]">
           <span>work</span>
           <span>research</span>
           <span>studio</span>
@@ -37,15 +59,13 @@ export default function Home() {
 
       {/* Hero text */}
       <div className="absolute inset-0 flex items-center justify-center z-10 px-8">
-        <div className="text-center font-instrument-serif tracking-[-2px] text-[#15261d]"
+        <div className="text-center font-instrument-serif tracking-[-2px] text-forest"
              style={{fontSize: 'clamp(2.5rem, 5.5vw, 6.25rem)', lineHeight: 1.2}}>
           <p>Systems thinking–driven</p>
           <p className="italic">product &amp; interaction designer</p>
-          <p>shaping research, scattered signals, and early exploration</p>
-          <p>
-            <span>into focused experiences </span>
-            <span className="italic text-sage">worth building.</span>
-          </p>
+          <p>shaping research, scattered signals,</p>
+          <p>and early exploration into focused experiences</p>
+          <p><span className="italic text-sage">worth building.</span></p>
         </div>
       </div>
 

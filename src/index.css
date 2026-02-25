@@ -4,6 +4,8 @@
   --font-instrument-serif: 'Instrument Serif', serif;
   --color-cream: #fffdf9;
   --color-sage: #78b299;
+  --color-forest: #15261d;
+  --color-ink: #120000;
 }
 
 *, *::before, *::after {
