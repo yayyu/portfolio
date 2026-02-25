@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 
 const BALL_SIZE = 220;
+const COLLISION_SIZE = 190;
 const FRICTION = 0.92;
 const RESTITUTION = 0.3;
 
@@ -79,11 +80,11 @@ export default function Home() {
         const dx = b.x - a.x;
         const dy = b.y - a.y;
         const dist = Math.sqrt(dx * dx + dy * dy) || 0.01;
-        if (dist >= BALL_SIZE) continue;
+        if (dist >= COLLISION_SIZE) continue;
 
         const nx = dx / dist;
         const ny = dy / dist;
-        const overlap = BALL_SIZE - dist;
+        const overlap = COLLISION_SIZE - dist;
 
         // Positional correction
         if (!a.isDragging && !b.isDragging) {
