@@ -10,17 +10,25 @@ export default function Home() {
   }, []);
 
   const balls = useMemo(() => {
-    const rand = (min, max) => Math.random() * (max - min) + min;
+    const rand = (min, max) => min >= max ? min : Math.random() * (max - min) + min;
     const rot = () => `rotate(${rand(-180, 180)}deg)`;
+    const W = window.innerWidth;
+    const H = window.innerHeight;
+    const size = 280;
+    const navH = 80;
+    const pad = 10;
+    const midX = W / 2;
+    const midY = navH + (H - navH) / 2;
+
     return [
-      // Top-left quadrant of text
-      { style: { top: `${rand(10, 33)}%`, left: `${rand(5, 25)}%`, transform: rot() } },
-      // Top-right quadrant of text
-      { style: { top: `${rand(10, 33)}%`, left: `${rand(50, 70)}%`, transform: rot() } },
-      // Bottom-left quadrant of text
-      { style: { top: `${rand(50, 70)}%`, left: `${rand(5, 25)}%`, transform: rot() } },
-      // Bottom-right quadrant of text
-      { style: { top: `${rand(50, 70)}%`, left: `${rand(50, 70)}%`, transform: rot() } },
+      // Top-left quadrant
+      { style: { top: rand(navH + pad, midY - size - pad), left: rand(pad, midX - size - pad), transform: rot() } },
+      // Top-right quadrant
+      { style: { top: rand(navH + pad, midY - size - pad), left: rand(midX + pad, W - size - pad), transform: rot() } },
+      // Bottom-left quadrant
+      { style: { top: rand(midY + pad, H - size - pad), left: rand(pad, midX - size - pad), transform: rot() } },
+      // Bottom-right quadrant
+      { style: { top: rand(midY + pad, H - size - pad), left: rand(midX + pad, W - size - pad), transform: rot() } },
     ];
   }, []);
 
