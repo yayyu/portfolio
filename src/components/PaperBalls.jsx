@@ -111,7 +111,12 @@ export default function PaperBalls() {
 
     // Remove completely out-of-bounds balls
     ballsRef.current = balls.filter(b =>
-      b.isDragging || !(b.x < -300 || b.x > window.innerWidth + 300 || b.y < -300 || b.y > window.innerHeight + 300)
+      b.isDragging || !(
+        b.x < -300 ||
+        b.x > window.innerWidth + 300 ||
+        b.y < -300 ||
+        b.y > document.body.scrollHeight + 300
+      )
     );
 
     forceUpdate(n => n + 1);
