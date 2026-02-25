@@ -1,8 +1,8 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 
 const BALL_SIZE = 220;
-const FRICTION = 0.97;
-const RESTITUTION = 0.6;
+const FRICTION = 0.92;
+const RESTITUTION = 0.3;
 
 function generateBalls() {
   const rand = (min, max) => Math.random() * (max - min) + min;
@@ -68,7 +68,7 @@ export default function Home() {
       b.vy *= FRICTION;
       b.x += b.vx;
       b.y += b.vy;
-      b.rotation += Math.hypot(b.vx, b.vy) * 0.05;
+      b.rotation += Math.hypot(b.vx, b.vy) * 0.15;
     }
 
     // Ball-ball collisions
@@ -106,14 +106,14 @@ export default function Home() {
 
         if (!a.isDragging && !b.isDragging) {
           const imp = -(1 + RESTITUTION) * dvn / 2;
-          a.vx -= imp * nx; a.vy -= imp * ny;
-          b.vx += imp * nx; b.vy += imp * ny;
+          a.vx = (a.vx - imp * nx) * 0.5; a.vy = (a.vy - imp * ny) * 0.5;
+          b.vx = (b.vx + imp * nx) * 0.5; b.vy = (b.vy + imp * ny) * 0.5;
         } else if (a.isDragging) {
           const imp = -(1 + RESTITUTION) * dvn;
-          b.vx += imp * nx; b.vy += imp * ny;
+          b.vx = (b.vx + imp * nx) * 0.5; b.vy = (b.vy + imp * ny) * 0.5;
         } else {
           const imp = -(1 + RESTITUTION) * dvn;
-          a.vx -= imp * nx; a.vy -= imp * ny;
+          a.vx = (a.vx - imp * nx) * 0.5; a.vy = (a.vy - imp * ny) * 0.5;
         }
       }
     }
@@ -154,8 +154,11 @@ export default function Home() {
     ball.y = e.clientY - ball.dragOffsetY;
     const now = performance.now();
     const dt = Math.max(1, now - d.lastTime);
-    d.vx = (e.clientX - d.lastX) / dt * 16;
-    d.vy = (e.clientY - d.lastY) / dt * 16;
+    const vx = (e.clientX - d.lastX) / dt * 16;
+    const vy = (e.clientY - d.lastY) / dt * 16;
+    d.vx = vx;
+    d.vy = vy;
+    ball.rotation += Math.hypot(vx, vy) * 0.15;
     d.lastX = e.clientX;
     d.lastY = e.clientY;
     d.lastTime = now;
