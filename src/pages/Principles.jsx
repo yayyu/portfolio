@@ -83,33 +83,37 @@ export default function Principles() {
                 zIndex: 1,
               }}
             >
-              <div
-                style={{
+              <div style={{ position: 'absolute', inset: 0 }}>
+                {/* Background layer — always fully visible, never fades */}
+                <div style={{
                   position: 'absolute',
                   inset: 0,
-                  filter: card.filter,
                   ...stickyStyle,
-                  display: 'flex',
-                  flexDirection: 'column',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  gap: '16px',
-                  padding: '32px',
-                  opacity: flipped === i ? 0 : 1,
-                  transition: 'opacity 0.2s ease',
-                }}
-              >
-                <img
-                  src={card.icon}
-                  alt=""
-                  draggable={false}
-                  style={card.icon === '/images/icon-scribble.svg'
-                    ? { width: '174px', height: '98px' }
-                    : { width: '95px', height: '95px' }}
-                />
-                <p className={`font-instrument-serif text-center text-[42px] leading-[40px] tracking-[-0.84px] ${card.textClass}`}>
-                  {card.text}
-                </p>
+                  filter: card.filter,
+                }} />
+
+                {/* Content layer — fades out as card flips */}
+                <div
+                  className="flex flex-col items-center justify-center gap-4 p-8"
+                  style={{
+                    position: 'absolute',
+                    inset: 0,
+                    opacity: flipped === i ? 0 : 1,
+                    transition: 'opacity 0.2s ease',
+                  }}
+                >
+                  <img
+                    src={card.icon}
+                    alt=""
+                    draggable={false}
+                    style={card.icon === '/images/icon-scribble.svg'
+                      ? { width: '174px', height: '98px' }
+                      : { width: '95px', height: '95px' }}
+                  />
+                  <p className={`font-instrument-serif text-center text-[42px] leading-[40px] tracking-[-0.84px] ${card.textClass}`}>
+                    {card.text}
+                  </p>
+                </div>
               </div>
             </div>
           </div>
