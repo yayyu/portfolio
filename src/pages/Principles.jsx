@@ -77,7 +77,7 @@ export default function Principles() {
                 inset: 0,
                 top: '3px',
                 transformOrigin: 'top center',
-                transform: flipped === i ? 'rotateX(95deg)' : 'rotateX(0deg)',
+                transform: flipped === i ? 'rotateX(75deg)' : 'rotateX(0deg)',
                 transition: 'transform 0.5s cubic-bezier(0.4, 0, 0.2, 1)',
                 transformStyle: 'preserve-3d',
                 zIndex: 1,
