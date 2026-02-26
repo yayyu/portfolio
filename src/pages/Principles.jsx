@@ -77,7 +77,7 @@ export default function Principles() {
                 inset: 0,
                 top: '3px',
                 transformOrigin: 'top center',
-                transform: flipped === i ? 'rotateX(85deg)' : 'rotateX(0deg)',
+                transform: flipped === i ? 'rotateX(95deg)' : 'rotateX(0deg)',
                 transition: 'transform 0.5s cubic-bezier(0.4, 0, 0.2, 1)',
                 transformStyle: 'preserve-3d',
                 zIndex: 1,
@@ -92,14 +92,12 @@ export default function Principles() {
                   filter: card.filter,
                 }} />
 
-                {/* Content layer — fades out as card flips */}
+                {/* Content layer */}
                 <div
                   className="flex flex-col items-center justify-center gap-4 p-8"
                   style={{
                     position: 'absolute',
                     inset: 0,
-                    opacity: flipped === i ? 0 : 1,
-                    transition: 'opacity 0.2s ease',
                   }}
                 >
                   <img
