@@ -90,14 +90,14 @@ function StickyCard({ card }) {
 
       {/* Front card — curl effect via 8 slices */}
       <div style={{ position: 'absolute', inset: 0, top: '3px', zIndex: 1, transformStyle: 'preserve-3d' }}>
-        {/* Content layer — fades out as curl progresses */}
+        {/* Content layer — sits above all slices */}
         <div
           className="flex flex-col items-center justify-center gap-4 p-8"
           style={{
-            position: 'absolute',
+            position: 'relative',
             inset: 0,
-            opacity: 1 - curlProgress,
-            transition: 'opacity 0.1s ease',
+            opacity: 1,
+            zIndex: SLICES + 1,
             pointerEvents: 'none',
           }}
         >
@@ -130,7 +130,7 @@ function StickyCard({ card }) {
                 right: 0,
                 top: `${s * SLICE_HEIGHT}px`,
                 height: `${SLICE_HEIGHT}px`,
-                overflow: 'hidden',
+                overflow: 'visible',
                 transformOrigin: 'top center',
                 transform: `rotateX(${angle}deg)`,
                 transformStyle: 'preserve-3d',
