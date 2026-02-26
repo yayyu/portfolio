@@ -5,6 +5,7 @@ const cards = [
   {
     filter: 'sepia(1) saturate(0.6) hue-rotate(10deg)',
     textClass: 'text-olive',
+    textColor: '#52480a',
     icon: '/images/icon-eye.svg',
     text: 'Problems rarely live where they first appear',
     back: 'Experiences, behaviors, and constraints are shaped by larger systems. I look beyond surface pain points to understand where the underlying forces are at play.',
@@ -12,6 +13,7 @@ const cards = [
   {
     filter: 'sepia(1) saturate(0.5) hue-rotate(120deg)',
     textClass: 'text-pine',
+    textColor: '#335744',
     icon: '/images/icon-scribble.svg',
     text: 'Design should intervene at leverage points',
     back: 'Within that system, there are multiple points where change is possible. I identify and compare potential leverage points before deciding where design can create the most meaningful shift.',
@@ -19,6 +21,7 @@ const cards = [
   {
     filter: 'sepia(1) saturate(0.4) hue-rotate(330deg)',
     textClass: 'text-terra',
+    textColor: '#624932',
     icon: '/images/icon-box.svg',
     text: 'Clarity emerges through testing',
     back: 'The strongest direction reveals itself through experimentation. I develop designs around identified leverage points and test them early, using learning to decide which should guide the final experience.',
@@ -28,35 +31,35 @@ const cards = [
 const W = 351;
 const H = 342;
 const SEG_Y = 32;
-const MAX_CURL = Math.PI * 0.85; // 153° — full peel without flipping back
+const MAX_CURL = Math.PI * 0.85; // 153° — full peel without doubling back
 
-// How far along the curl is for the strip at normalized position v (0=bottom, 1=top).
-// Bottom starts immediately; top lags by 0.4 of overall progress.
+// v: 0 = bottom segment (curls first), 1 = top segment (curls last, 0.4 lag)
 function localProgress(p, v) {
   return Math.max(0, Math.min(1, (p - v * 0.4) / 0.6));
 }
 
-// Deform PlaneGeometry vertices to simulate a paper peel from bottom to top.
-// Bottom row (iy=SEG_Y) is anchored at y=-H/2, z=0.
-// Each row above is positioned by integrating the tangent of all segments below it.
+// Deform vertices for a bottom-up paper peel.
+// Top row (iy=0, y=+H/2) is the hinge — always stays at z=0.
+// Integrate downward from the anchor; bottom segments curl first.
 function deformCurl(geometry, p) {
   const pos = geometry.attributes.position;
   const segH = H / SEG_Y;
 
-  // iy=0 → top row (y = +H/2), iy=SEG_Y → bottom row (y = -H/2)
-  for (let iy = SEG_Y; iy >= 0; iy--) {
-    let accY = -H / 2; // start at bottom anchor
+  // iy=0 → top row (y=+H/2, anchored), iy=SEG_Y → bottom row (lifts first)
+  for (let iy = 0; iy <= SEG_Y; iy++) {
+    let accY = H / 2;
     let accZ = 0;
 
-    // Integrate segments from the bottom (r=SEG_Y) up to just below this row (r=iy+1)
-    for (let r = SEG_Y; r > iy; r--) {
-      const vr = (SEG_Y - r) / SEG_Y; // 0 at bottom, 1 at top
-      const theta = localProgress(p, vr) * MAX_CURL;
-      accY += segH * Math.cos(theta); // move up (and compress as curl deepens)
+    // Segment r runs from the topmost strip (r=0) down to just above row iy.
+    // v=1 at r=0 (top strip, curls last), v=0 at r=SEG_Y-1 (bottom strip, curls first).
+    for (let r = 0; r < iy; r++) {
+      const v = (SEG_Y - 1 - r) / (SEG_Y - 1);
+      const theta = localProgress(p, v) * MAX_CURL;
+      accY -= segH * Math.cos(theta); // move downward (less so as curl deepens)
       accZ += segH * Math.sin(theta); // lift toward viewer
     }
 
-    // widthSegments=1 → 2 vertices per row, index = iy*2 + ix
+    // widthSegments=1 → 2 vertices per row: index = iy*2 + ix
     pos.setY(iy * 2,     accY);
     pos.setZ(iy * 2,     accZ);
     pos.setY(iy * 2 + 1, accY);
@@ -66,32 +69,87 @@ function deformCurl(geometry, p) {
   pos.needsUpdate = true;
 }
 
+function loadImg(src) {
+  return new Promise((resolve, reject) => {
+    const img = new Image();
+    img.onload = () => resolve(img);
+    img.onerror = reject;
+    img.src = src;
+  });
+}
+
+function wrapText(ctx, text, maxWidth) {
+  const words = text.split(' ');
+  const lines = [];
+  let line = '';
+  for (const word of words) {
+    const candidate = line ? `${line} ${word}` : word;
+    if (line && ctx.measureText(candidate).width > maxWidth) {
+      lines.push(line);
+      line = word;
+    } else {
+      line = candidate;
+    }
+  }
+  if (line) lines.push(line);
+  return lines;
+}
+
+// Draw the full front face — sticky note texture + icon + text — onto ctx.
+function drawFrontFace(ctx, card, stickyImg, iconImg) {
+  // Sticky note background with per-card color filter
+  ctx.filter = card.filter;
+  ctx.drawImage(stickyImg, 0, 0, W, H);
+  ctx.filter = 'none';
+
+  // Icon dimensions (scribble icon is wider)
+  const iconW = card.icon === '/images/icon-scribble.svg' ? 174 : 95;
+  const iconH = card.icon === '/images/icon-scribble.svg' ? 98  : 95;
+  const gap     = 16; // gap-4
+  const padding = 32; // p-8
+
+  // Set up text style for measuring
+  ctx.font = '42px "Instrument Serif"';
+  if ('letterSpacing' in ctx) ctx.letterSpacing = '-0.84px';
+  const lines  = wrapText(ctx, card.text, W - padding * 2);
+  const lineH  = 40; // leading-[40px]
+  const totalH = iconH + gap + lines.length * lineH;
+  const startY = (H - totalH) / 2;
+
+  // Icon — centered horizontally
+  ctx.drawImage(iconImg, (W - iconW) / 2, startY, iconW, iconH);
+
+  // Text lines
+  ctx.fillStyle   = card.textColor;
+  ctx.textAlign   = 'center';
+  ctx.textBaseline = 'top';
+  lines.forEach((line, i) => {
+    ctx.fillText(line, W / 2, startY + iconH + gap + i * lineH);
+  });
+}
+
 function StickyCard({ card }) {
-  const canvasRef = useRef(null);
-  const threeRef  = useRef(null);
-  const rafRef    = useRef(null);
+  const canvasRef   = useRef(null);
+  const threeRef    = useRef(null);
+  const rafRef      = useRef(null);
   const progressRef = useRef(0);
   const targetRef   = useRef(0);
 
-  // Set up Three.js scene once on mount
   useEffect(() => {
-    const canvas = canvasRef.current;
-
+    const canvas   = canvasRef.current;
     const renderer = new THREE.WebGLRenderer({ canvas, alpha: true, antialias: true });
     renderer.setPixelRatio(window.devicePixelRatio);
     renderer.setSize(W, H);
     renderer.setClearColor(0x000000, 0);
 
-    const scene = new THREE.Scene();
-
-    // OrthographicCamera sized exactly to the card — no perspective distortion
+    const scene  = new THREE.Scene();
+    // OrthographicCamera exactly sized to the card — no perspective distortion
     const camera = new THREE.OrthographicCamera(-W / 2, W / 2, H / 2, -H / 2, 0.1, 10000);
     camera.position.z = 1000;
 
-    // Geometry: 1 segment wide, 32 tall for a smooth curl
+    // 1 segment wide, SEG_Y tall for a smooth 3D curl
     const geometry = new THREE.PlaneGeometry(W, H, 1, SEG_Y);
 
-    // Pre-render sticky note with the per-card CSS color filter into an offscreen canvas
     const offscreen = document.createElement('canvas');
     offscreen.width  = W;
     offscreen.height = H;
@@ -104,14 +162,17 @@ function StickyCard({ card }) {
 
     threeRef.current = { renderer, scene, camera, geometry, material, texture };
 
-    const img = new Image();
-    img.onload = () => {
-      ctx.filter = card.filter;
-      ctx.drawImage(img, 0, 0, W, H);
+    // Wait for both images and the web font before painting the texture
+    Promise.all([
+      loadImg('/images/sticky-note.png'),
+      loadImg(card.icon),
+      document.fonts.load('42px "Instrument Serif"'),
+    ]).then(([stickyImg, iconImg]) => {
+      if (!threeRef.current) return; // component unmounted
+      drawFrontFace(ctx, card, stickyImg, iconImg);
       texture.needsUpdate = true;
       renderer.render(scene, camera);
-    };
-    img.src = '/images/sticky-note.png';
+    });
 
     return () => {
       cancelAnimationFrame(rafRef.current);
@@ -154,7 +215,7 @@ function StickyCard({ card }) {
       onMouseEnter={handleEnter}
       onMouseLeave={handleLeave}
     >
-      {/* Back card — always visible underneath */}
+      {/* Back card — always visible underneath the canvas */}
       <div style={{ position: 'absolute', inset: 0 }}>
         <div
           style={{
@@ -174,26 +235,8 @@ function StickyCard({ card }) {
         </div>
       </div>
 
-      {/* Three.js canvas — front sticky note with vertex curl */}
-      <canvas ref={canvasRef} style={{ position: 'absolute', left: 0, top: 3, zIndex: 1 }} />
-
-      {/* Content overlay — icon + text, always above the canvas */}
-      <div
-        className="flex flex-col items-center justify-center gap-4 p-8"
-        style={{ position: 'absolute', inset: 0, zIndex: 10, pointerEvents: 'none' }}
-      >
-        <img
-          src={card.icon}
-          alt=""
-          draggable={false}
-          style={card.icon === '/images/icon-scribble.svg'
-            ? { width: '174px', height: '98px' }
-            : { width: '95px', height: '95px' }}
-        />
-        <p className={`font-instrument-serif text-center text-[42px] leading-[40px] tracking-[-0.84px] ${card.textClass}`}>
-          {card.text}
-        </p>
-      </div>
+      {/* Three.js canvas — front face with baked texture and vertex curl */}
+      <canvas ref={canvasRef} style={{ position: 'absolute', left: 0, top: 0, zIndex: 1 }} />
     </div>
   );
 }
