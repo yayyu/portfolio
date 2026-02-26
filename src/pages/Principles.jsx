@@ -1,4 +1,5 @@
-import { useState, useEffect, useRef } from 'react';
+import { useEffect, useRef } from 'react';
+import * as THREE from 'three';
 
 const cards = [
   {
@@ -24,51 +25,137 @@ const cards = [
   },
 ];
 
-const SLICES = 8;
-const CARD_HEIGHT = 342;
-const SLICE_HEIGHT = CARD_HEIGHT / SLICES;
+const W = 351;
+const H = 342;
+const SEG_Y = 32;
+const MAX_CURL = Math.PI * 0.85; // 153° — full peel without flipping back
+
+// How far along the curl is for the strip at normalized position v (0=bottom, 1=top).
+// Bottom starts immediately; top lags by 0.4 of overall progress.
+function localProgress(p, v) {
+  return Math.max(0, Math.min(1, (p - v * 0.4) / 0.6));
+}
+
+// Deform PlaneGeometry vertices to simulate a paper peel from bottom to top.
+// Bottom row (iy=SEG_Y) is anchored at y=-H/2, z=0.
+// Each row above is positioned by integrating the tangent of all segments below it.
+function deformCurl(geometry, p) {
+  const pos = geometry.attributes.position;
+  const segH = H / SEG_Y;
+
+  // iy=0 → top row (y = +H/2), iy=SEG_Y → bottom row (y = -H/2)
+  for (let iy = SEG_Y; iy >= 0; iy--) {
+    let accY = -H / 2; // start at bottom anchor
+    let accZ = 0;
+
+    // Integrate segments from the bottom (r=SEG_Y) up to just below this row (r=iy+1)
+    for (let r = SEG_Y; r > iy; r--) {
+      const vr = (SEG_Y - r) / SEG_Y; // 0 at bottom, 1 at top
+      const theta = localProgress(p, vr) * MAX_CURL;
+      accY += segH * Math.cos(theta); // move up (and compress as curl deepens)
+      accZ += segH * Math.sin(theta); // lift toward viewer
+    }
+
+    // widthSegments=1 → 2 vertices per row, index = iy*2 + ix
+    pos.setY(iy * 2,     accY);
+    pos.setZ(iy * 2,     accZ);
+    pos.setY(iy * 2 + 1, accY);
+    pos.setZ(iy * 2 + 1, accZ);
+  }
+
+  pos.needsUpdate = true;
+}
 
 function StickyCard({ card }) {
-  const [curlProgress, setCurlProgress] = useState(0);
-  const rafRef = useRef(null);
+  const canvasRef = useRef(null);
+  const threeRef  = useRef(null);
+  const rafRef    = useRef(null);
   const progressRef = useRef(0);
-  const targetRef = useRef(0);
+  const targetRef   = useRef(0);
 
-  const animate = () => {
-    const diff = targetRef.current - progressRef.current;
-    if (Math.abs(diff) < 0.001) {
-      progressRef.current = targetRef.current;
-      setCurlProgress(targetRef.current);
-      return;
-    }
-    progressRef.current += diff * 0.08;
-    setCurlProgress(progressRef.current);
-    rafRef.current = requestAnimationFrame(animate);
+  // Set up Three.js scene once on mount
+  useEffect(() => {
+    const canvas = canvasRef.current;
+
+    const renderer = new THREE.WebGLRenderer({ canvas, alpha: true, antialias: true });
+    renderer.setPixelRatio(window.devicePixelRatio);
+    renderer.setSize(W, H);
+    renderer.setClearColor(0x000000, 0);
+
+    const scene = new THREE.Scene();
+
+    // OrthographicCamera sized exactly to the card — no perspective distortion
+    const camera = new THREE.OrthographicCamera(-W / 2, W / 2, H / 2, -H / 2, 0.1, 10000);
+    camera.position.z = 1000;
+
+    // Geometry: 1 segment wide, 32 tall for a smooth curl
+    const geometry = new THREE.PlaneGeometry(W, H, 1, SEG_Y);
+
+    // Pre-render sticky note with the per-card CSS color filter into an offscreen canvas
+    const offscreen = document.createElement('canvas');
+    offscreen.width  = W;
+    offscreen.height = H;
+    const ctx = offscreen.getContext('2d');
+
+    const texture  = new THREE.CanvasTexture(offscreen);
+    const material = new THREE.MeshBasicMaterial({ map: texture, transparent: true });
+    const mesh     = new THREE.Mesh(geometry, material);
+    scene.add(mesh);
+
+    threeRef.current = { renderer, scene, camera, geometry, material, texture };
+
+    const img = new Image();
+    img.onload = () => {
+      ctx.filter = card.filter;
+      ctx.drawImage(img, 0, 0, W, H);
+      texture.needsUpdate = true;
+      renderer.render(scene, camera);
+    };
+    img.src = '/images/sticky-note.png';
+
+    return () => {
+      cancelAnimationFrame(rafRef.current);
+      geometry.dispose();
+      material.dispose();
+      texture.dispose();
+      renderer.dispose();
+      threeRef.current = null;
+    };
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+
+  const doFrame = () => {
+    if (!threeRef.current) return;
+    const diff    = targetRef.current - progressRef.current;
+    const settled = Math.abs(diff) < 0.001;
+    progressRef.current = settled ? targetRef.current : progressRef.current + diff * 0.08;
+
+    const { renderer, scene, camera, geometry } = threeRef.current;
+    deformCurl(geometry, progressRef.current);
+    renderer.render(scene, camera);
+
+    if (!settled) rafRef.current = requestAnimationFrame(doFrame);
   };
 
   const handleEnter = () => {
     targetRef.current = 1;
     cancelAnimationFrame(rafRef.current);
-    rafRef.current = requestAnimationFrame(animate);
+    rafRef.current = requestAnimationFrame(doFrame);
   };
 
   const handleLeave = () => {
     targetRef.current = 0;
     cancelAnimationFrame(rafRef.current);
-    rafRef.current = requestAnimationFrame(animate);
+    rafRef.current = requestAnimationFrame(doFrame);
   };
-
-  useEffect(() => () => cancelAnimationFrame(rafRef.current), []);
 
   return (
     <div
-      style={{ position: 'relative', width: '351px', height: `${CARD_HEIGHT}px`, perspective: '1200px' }}
+      style={{ position: 'relative', width: `${W}px`, height: `${H}px` }}
       onMouseEnter={handleEnter}
       onMouseLeave={handleLeave}
     >
-      {/* Back card — always visible underneath, never moves */}
+      {/* Back card — always visible underneath */}
       <div style={{ position: 'absolute', inset: 0 }}>
-        {/* Filtered background */}
         <div
           style={{
             position: 'absolute',
@@ -80,7 +167,6 @@ function StickyCard({ card }) {
             filter: card.filter,
           }}
         />
-        {/* Unfiltered text */}
         <div className="flex items-center justify-center p-8" style={{ position: 'absolute', inset: 0 }}>
           <p className={`font-instrument-serif text-[24px] text-center tracking-[-0.48px] ${card.textClass}`}>
             {card.back}
@@ -88,62 +174,25 @@ function StickyCard({ card }) {
         </div>
       </div>
 
-      {/* Front card — curl effect via 8 slices */}
-      <div style={{ position: 'absolute', inset: 0, top: '3px', zIndex: 1, transformStyle: 'preserve-3d' }}>
-        {/* Content layer — sits above all slices */}
-        <div
-          className="flex flex-col items-center justify-center gap-4 p-8"
-          style={{
-            position: 'relative',
-            inset: 0,
-            opacity: 1,
-            zIndex: SLICES + 1,
-            pointerEvents: 'none',
-          }}
-        >
-          <img
-            src={card.icon}
-            alt=""
-            draggable={false}
-            style={card.icon === '/images/icon-scribble.svg'
-              ? { width: '174px', height: '98px' }
-              : { width: '95px', height: '95px' }}
-          />
-          <p className={`font-instrument-serif text-center text-[42px] leading-[40px] tracking-[-0.84px] ${card.textClass}`}>
-            {card.text}
-          </p>
-        </div>
+      {/* Three.js canvas — front sticky note with vertex curl */}
+      <canvas ref={canvasRef} style={{ position: 'absolute', left: 0, top: 3, zIndex: 1 }} />
 
-        {/* 8 slices for the curl background */}
-        {Array.from({ length: SLICES }).map((_, s) => {
-          // slice 7 = bottom (curls first), slice 0 = top (curls last)
-          const delay = (7 - s) / 7; // 1 = bottom, 0 = top
-          const sliceProgress = Math.max(0, Math.min(1, (curlProgress - (1 - delay) * 0.4) / 0.6));
-          const angle = sliceProgress * 75;
-
-          return (
-            <div
-              key={s}
-              style={{
-                position: 'absolute',
-                left: 0,
-                right: 0,
-                top: `${s * SLICE_HEIGHT}px`,
-                height: `${SLICE_HEIGHT}px`,
-                overflow: 'visible',
-                transformOrigin: 'top center',
-                transform: `rotateX(${angle}deg)`,
-                transformStyle: 'preserve-3d',
-                backgroundImage: 'url(/images/sticky-note.png)',
-                backgroundSize: `351px ${CARD_HEIGHT}px`,
-                backgroundPosition: `0 -${s * SLICE_HEIGHT}px`,
-                backgroundRepeat: 'no-repeat',
-                filter: card.filter,
-                zIndex: SLICES - s,
-              }}
-            />
-          );
-        })}
+      {/* Content overlay — icon + text, always above the canvas */}
+      <div
+        className="flex flex-col items-center justify-center gap-4 p-8"
+        style={{ position: 'absolute', inset: 0, zIndex: 10, pointerEvents: 'none' }}
+      >
+        <img
+          src={card.icon}
+          alt=""
+          draggable={false}
+          style={card.icon === '/images/icon-scribble.svg'
+            ? { width: '174px', height: '98px' }
+            : { width: '95px', height: '95px' }}
+        />
+        <p className={`font-instrument-serif text-center text-[42px] leading-[40px] tracking-[-0.84px] ${card.textClass}`}>
+          {card.text}
+        </p>
       </div>
     </div>
   );
