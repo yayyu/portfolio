@@ -2,7 +2,7 @@ import { useState, useRef, useCallback, useEffect } from 'react';
 
 const BALL_SIZE = 220;
 const COLLISION_SIZE = 190;
-const FRICTION = 0.92;
+const FRICTION = 0.96;
 const RESTITUTION = 0.3;
 
 function generateBalls() {
@@ -53,6 +53,8 @@ export default function PaperBalls({ onMount }) {
 
   const tick = useCallback(() => {
     const balls = ballsRef.current;
+    const W = window.innerWidth;
+    const H = window.innerHeight;
 
     // Physics step
     for (const b of balls) {
@@ -62,6 +64,12 @@ export default function PaperBalls({ onMount }) {
       b.x += b.vx;
       b.y += b.vy;
       b.rotation += Math.hypot(b.vx, b.vy) * 0.15;
+
+      // Soft viewport walls — balls come to rest at the edges
+      if (b.x < -BALL_SIZE * 0.2)       { b.x = -BALL_SIZE * 0.2;      b.vx =  Math.abs(b.vx) * 0.15; }
+      if (b.x > W - BALL_SIZE * 0.8)    { b.x = W - BALL_SIZE * 0.8;   b.vx = -Math.abs(b.vx) * 0.15; }
+      if (b.y < 80)                      { b.y = 80;                     b.vy =  Math.abs(b.vy) * 0.15; }
+      if (b.y > H - BALL_SIZE * 0.6)    { b.y = H - BALL_SIZE * 0.6;   b.vy = -Math.abs(b.vy) * 0.15; }
     }
 
     // Ball-ball collisions
@@ -144,7 +152,7 @@ export default function PaperBalls({ onMount }) {
         // Push toward whichever edge requires the least travel
         const minH = Math.min(dLeft, dRight);
         const minV = Math.min(dTop, dBottom);
-        const FORCE = 4;
+        const FORCE = 2;
         if (minH < minV) {
           b.vx += dLeft < dRight ? -FORCE : FORCE;
         } else {
@@ -154,13 +162,13 @@ export default function PaperBalls({ onMount }) {
       if (!anyOverlap) repellingRef.current = false;
     }
 
-    // Remove completely out-of-bounds balls
+    // Safety net — remove only truly escaped balls (walls handle normal containment)
     ballsRef.current = balls.filter(b =>
       b.isDragging || !(
-        b.x < -300 ||
-        b.x > window.innerWidth + 300 ||
-        b.y < -300 ||
-        b.y > document.body.scrollHeight + 300
+        b.x < -BALL_SIZE ||
+        b.x > W + BALL_SIZE ||
+        b.y < -BALL_SIZE ||
+        b.y > H + BALL_SIZE
       )
     );
 
