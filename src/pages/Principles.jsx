@@ -211,7 +211,7 @@ function StickyCard({ card }) {
       <div style={{ position: 'absolute', inset: 0 }}>
         <div style={{ position: 'absolute', inset: 0, backgroundColor: card.bgColor }} />
         <div className="flex items-center justify-center p-8" style={{ position: 'absolute', inset: 0 }}>
-          <div className={`font-instrument-serif text-[24px] text-center tracking-[-0.48px] ${card.textClass}`}>
+          <div className="font-instrument-serif text-[24px] text-center tracking-[-0.48px]" style={{ color: card.textColor }}>
             {card.back.split('\n\n').map((para, pi) => (
               <p key={pi} className={pi > 0 ? 'mt-[1em]' : ''}>{para}</p>
             ))}
