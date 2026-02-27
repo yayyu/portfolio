@@ -87,8 +87,6 @@ function loadImg(src) {
 // Draw the full front face — sticky note texture + icon + text — onto ctx.
 // Color is applied via CSS filter on the canvas wrapper div; no baked-in tint needed.
 function drawFrontFace(ctx, card, stickyImg, iconImg) {
-  ctx.fillStyle = '#ffffff';
-  ctx.fillRect(0, 0, W, H);
   ctx.drawImage(stickyImg, 0, 0, W, H);
 
   // Icon dimensions (scribble icon is wider)
@@ -154,7 +152,7 @@ function StickyCard({ card }) {
 
     // Wait for both images and the web font before painting the texture
     Promise.all([
-      loadImg('/images/sticky-note-bottom.png'),
+      loadImg('/images/sticky-note.png'),
       loadImg(card.icon),
       document.fonts.load('42px "Instrument Serif"'),
     ]).then(([stickyImg, iconImg]) => {
