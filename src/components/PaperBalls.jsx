@@ -147,7 +147,7 @@ export default function PaperBalls({ onMount }) {
         // Push toward whichever edge requires the least travel
         const minH = Math.min(dLeft, dRight);
         const minV = Math.min(dTop, dBottom);
-        const FORCE = 4;
+        const FORCE = 2;
         if (minH < minV) {
           b.vx += dLeft < dRight ? -FORCE : FORCE;
         } else {
