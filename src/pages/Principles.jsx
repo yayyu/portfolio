@@ -9,7 +9,10 @@ const cards = [
     icon: '/images/icon-eye.svg',
     lines: ['Symptoms are', 'not the problem'],
     lineSizes: [42, 38],
-    back: 'Experiences, behaviors, and constraints are shaped by larger systems. I look beyond surface symptoms to find where the underlying forces actually live.',
+    backLines: [
+      ['What appears broken is often an', 'effect, not the cause.'],
+      ['First solutions tend to treat the', 'symptom, which is why I step back', 'and explore the system before', 'deciding what to change.'],
+    ],
   },
   {
     bgColor: '#b8cec4',
@@ -18,7 +21,10 @@ const cards = [
     icon: '/images/icon-scribble.svg',
     lines: ['Clarity emerges at', 'leverage points'],
     lineSizes: [38, 38],
-    back: 'Within complex systems, some points of intervention create disproportionate change. I map these before deciding where design effort will matter most.',
+    backLines: [
+      ['Complex systems present many', 'possible directions, but not all of them', 'meaningfully change outcomes.'],
+      ['Identifying leverage points transforms', 'ambiguity into clear opportunities for', 'intervention.'],
+    ],
   },
   {
     bgColor: '#d9b99a',
@@ -27,7 +33,10 @@ const cards = [
     icon: '/images/icon-box.svg',
     lines: ['Interaction reveals', 'what reasoning', 'cannot'],
     lineSizes: [38, 38, 38],
-    back: 'The strongest directions emerge through testing, not deliberation. I build early, put work in front of people, and let real use reshape the design.',
+    backLines: [
+      ['Even well-reasoned interventions', 'remain theoretical until users engage', 'with them.'],
+      ['Their response reveals how the design', 'must adapt to create meaningful', 'change.'],
+    ],
   },
 ];
 
@@ -211,9 +220,15 @@ function StickyCard({ card }) {
       <div style={{ position: 'absolute', inset: 0 }}>
         <div style={{ position: 'absolute', inset: 0, backgroundColor: card.bgColor }} />
         <div className="flex items-center justify-center p-8" style={{ position: 'absolute', inset: 0 }}>
-          <p className={`font-instrument-serif text-[24px] text-center tracking-[-0.48px] ${card.textClass}`}>
-            {card.back}
-          </p>
+          <div className={`font-instrument-serif text-[24px] text-center tracking-[-0.48px] ${card.textClass}`}>
+            {card.backLines.map((paragraph, pi) => (
+              <p key={pi} className={pi > 0 ? 'mt-[1em]' : ''}>
+                {paragraph.map((line, li) => (
+                  <span key={li}>{li > 0 && <br />}{line}</span>
+                ))}
+              </p>
+            ))}
+          </div>
         </div>
       </div>
 
