@@ -84,16 +84,10 @@ function loadImg(src) {
   });
 }
 
-// Draw the full front face — sticky note texture + tint + icon + text — onto ctx.
-// Tint is applied via multiply blend directly on the canvas; no CSS filter needed.
+// Draw the full front face — sticky note texture + icon + text — onto ctx.
+// Color is applied via CSS filter on the canvas wrapper div; no baked-in tint needed.
 function drawFrontFace(ctx, card, stickyImg, iconImg) {
   ctx.drawImage(stickyImg, 0, 0, W, H);
-
-  // Multiply tint — simulates Figma color overlay; white pixels become tintColor
-  ctx.globalCompositeOperation = 'multiply';
-  ctx.fillStyle = card.tintColor;
-  ctx.fillRect(0, 0, W, H);
-  ctx.globalCompositeOperation = 'source-over';
 
   // Icon dimensions (scribble icon is wider)
   const iconW = card.icon === '/images/icon-scribble.svg' ? 174 : 95;
@@ -158,7 +152,7 @@ function StickyCard({ card }) {
 
     // Wait for both images and the web font before painting the texture
     Promise.all([
-      loadImg('/images/sticky-note.png'),
+      loadImg('/images/sticky-note-bottom.png'),
       loadImg(card.icon),
       document.fonts.load('42px "Instrument Serif"'),
     ]).then(([stickyImg, iconImg]) => {
@@ -235,8 +229,10 @@ function StickyCard({ card }) {
         </div>
       </div>
 
-      {/* Front canvas — tint baked into texture, no CSS filter wrapper needed */}
-      <canvas ref={canvasRef} style={{ position: 'absolute', left: 0, top: 0, zIndex: 1 }} />
+      {/* Front canvas — CSS filter wrapper matches back card coloring exactly */}
+      <div style={{ position: 'absolute', left: 0, top: 0, zIndex: 1, filter: card.filter }}>
+        <canvas ref={canvasRef} style={{ display: 'block' }} />
+      </div>
     </div>
   );
 }
