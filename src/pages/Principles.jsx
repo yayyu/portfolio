@@ -9,10 +9,7 @@ const cards = [
     icon: '/images/icon-eye.svg',
     lines: ['Symptoms are', 'not the problem'],
     lineSizes: [42, 38],
-    backLines: [
-      ['What appears broken is often an', 'effect, not the cause.'],
-      ['First solutions tend to treat the', 'symptom, which is why I step back', 'and explore the system before', 'deciding what to change.'],
-    ],
+    back: 'What appears broken is often an effect, not the cause.\n\nFirst solutions tend to treat the symptom, which is why I step back and explore the system before deciding what to change.',
   },
   {
     bgColor: '#b8cec4',
@@ -21,10 +18,7 @@ const cards = [
     icon: '/images/icon-scribble.svg',
     lines: ['Clarity emerges at', 'leverage points'],
     lineSizes: [38, 38],
-    backLines: [
-      ['Complex systems present many', 'possible directions, but not all of them', 'meaningfully change outcomes.'],
-      ['Identifying leverage points transforms', 'ambiguity into clear opportunities for', 'intervention.'],
-    ],
+    back: 'Complex systems present many possible directions, but not all of them meaningfully change outcomes.\n\nIdentifying leverage points transforms ambiguity into clear opportunities for intervention.',
   },
   {
     bgColor: '#d9b99a',
@@ -33,10 +27,7 @@ const cards = [
     icon: '/images/icon-box.svg',
     lines: ['Interaction reveals', 'what reasoning', 'cannot'],
     lineSizes: [38, 38, 38],
-    backLines: [
-      ['Even well-reasoned interventions', 'remain theoretical until users engage', 'with them.'],
-      ['Their response reveals how the design', 'must adapt to create meaningful', 'change.'],
-    ],
+    back: 'Even well-reasoned interventions remain theoretical until users engage with them.\n\nTheir response reveals how the design must adapt to create meaningful change.',
   },
 ];
 
@@ -221,12 +212,8 @@ function StickyCard({ card }) {
         <div style={{ position: 'absolute', inset: 0, backgroundColor: card.bgColor }} />
         <div className="flex items-center justify-center p-8" style={{ position: 'absolute', inset: 0 }}>
           <div className={`font-instrument-serif text-[24px] text-center tracking-[-0.48px] ${card.textClass}`}>
-            {card.backLines.map((paragraph, pi) => (
-              <p key={pi} className={pi > 0 ? 'mt-[1em]' : ''}>
-                {paragraph.map((line, li) => (
-                  <span key={li}>{li > 0 && <br />}{line}</span>
-                ))}
-              </p>
+            {card.back.split('\n\n').map((para, pi) => (
+              <p key={pi} className={pi > 0 ? 'mt-[1em]' : ''}>{para}</p>
             ))}
           </div>
         </div>
@@ -252,6 +239,10 @@ export default function Principles() {
           <StickyCard key={i} card={card} />
         ))}
       </div>
+
+      <p className="font-instrument-serif italic text-[36px] text-center tracking-[-0.72px] text-black max-w-[925px] mx-auto mt-12">
+        My work focuses first on diagnosing systems and guiding intervention— then refining the designs that express it.
+      </p>
     </section>
   );
 }
