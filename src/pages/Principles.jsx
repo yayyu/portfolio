@@ -96,11 +96,9 @@ function wrapText(ctx, text, maxWidth) {
 }
 
 // Draw the full front face — sticky note texture + icon + text — onto ctx.
+// Color tinting is handled at the CSS level (filter on wrapper div), not here.
 function drawFrontFace(ctx, card, stickyImg, iconImg) {
-  // Sticky note background with per-card color filter
-  ctx.filter = card.filter;
   ctx.drawImage(stickyImg, 0, 0, W, H);
-  ctx.filter = 'none';
 
   // Icon dimensions (scribble icon is wider)
   const iconW = card.icon === '/images/icon-scribble.svg' ? 174 : 95;
@@ -129,11 +127,14 @@ function drawFrontFace(ctx, card, stickyImg, iconImg) {
 }
 
 function StickyCard({ card }) {
-  const canvasRef   = useRef(null);
-  const threeRef    = useRef(null);
-  const rafRef      = useRef(null);
-  const progressRef = useRef(0);
-  const targetRef   = useRef(0);
+  const canvasRef    = useRef(null);
+  const threeRef     = useRef(null);
+  const rafRef       = useRef(null);
+  const progressRef  = useRef(0);
+  const targetRef    = useRef(0);
+  // Bypasses the settlement check on the very first frame after each direction change,
+  // preventing the loop from exiting immediately if diff is tiny at the moment of trigger.
+  const firstFrameRef = useRef(false);
 
   useEffect(() => {
     const canvas   = canvasRef.current;
@@ -186,9 +187,13 @@ function StickyCard({ card }) {
 
   const doFrame = () => {
     if (!threeRef.current) return;
-    const diff    = targetRef.current - progressRef.current;
-    const settled = Math.abs(diff) < 0.001;
-    progressRef.current = settled ? targetRef.current : progressRef.current + diff * 0.08;
+    const diff     = targetRef.current - progressRef.current;
+    const isFirst  = firstFrameRef.current;
+    firstFrameRef.current = false;
+    // Skip settlement check on the first frame so a direction change always
+    // advances at least one step, even if diff is below the threshold.
+    const settled  = !isFirst && Math.abs(diff) < 0.001;
+    progressRef.current = settled ? targetRef.current : progressRef.current + diff * 0.04;
 
     const { renderer, scene, camera, geometry } = threeRef.current;
     deformCurl(geometry, progressRef.current);
@@ -199,12 +204,14 @@ function StickyCard({ card }) {
 
   const handleEnter = () => {
     targetRef.current = 1;
+    firstFrameRef.current = true;
     cancelAnimationFrame(rafRef.current);
     rafRef.current = requestAnimationFrame(doFrame);
   };
 
   const handleLeave = () => {
     targetRef.current = 0;
+    firstFrameRef.current = true;
     cancelAnimationFrame(rafRef.current);
     rafRef.current = requestAnimationFrame(doFrame);
   };
@@ -235,8 +242,11 @@ function StickyCard({ card }) {
         </div>
       </div>
 
-      {/* Three.js canvas — front face with baked texture and vertex curl */}
-      <canvas ref={canvasRef} style={{ position: 'absolute', left: 0, top: 0, zIndex: 1 }} />
+      {/* CSS filter wrapper — applying filter here is more reliable than ctx.filter
+          on the 2D canvas, which has colorspace inconsistencies in some browsers. */}
+      <div style={{ position: 'absolute', inset: 0, zIndex: 1, filter: card.filter }}>
+        <canvas ref={canvasRef} style={{ position: 'absolute', left: 0, top: 0 }} />
+      </div>
     </div>
   );
 }
