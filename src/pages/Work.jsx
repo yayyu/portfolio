@@ -29,7 +29,7 @@ function ProjectCard({ project }) {
   return (
     <div
       style={{
-        width: 527,
+        width: '100%',
         backgroundColor: '#ffffff',
         borderRadius: 16,
         boxShadow: '0px 4px 16px rgba(0,0,0,0.12)',
@@ -86,14 +86,14 @@ function ProjectCard({ project }) {
 export default function Work() {
   return (
     <section
-      className="w-full pt-[120px] pb-[120px] px-8"
+      className="w-full pt-[120px] pb-[120px] px-[160px]"
       style={{ backgroundColor: '#f9f9f9' }}
     >
       <h2 className="font-instrument-serif text-ink text-[64px] tracking-[-1.28px] text-center mb-12">
         Selected works
       </h2>
 
-      <div className="max-w-[1102px] mx-auto flex flex-wrap justify-center gap-[48px]">
+      <div className="grid grid-cols-2 gap-[48px]">
         {projects.map((project) => (
           <ProjectCard key={project.name} project={project} />
         ))}
