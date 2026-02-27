@@ -41,7 +41,7 @@ function generateBalls() {
   return placed;
 }
 
-export default function PaperBalls() {
+export default function PaperBalls({ onMount }) {
   const ballsRef = useRef(null);
   if (!ballsRef.current) ballsRef.current = generateBalls();
 
@@ -183,6 +183,35 @@ export default function PaperBalls() {
     ball.vy = d.vy;
     dragRef.current = null;
   }, []);
+
+  // Expose repel function to parent via onMount callback
+  useEffect(() => {
+    if (!onMount) return;
+    onMount((rect) => {
+      const pad = 20;
+      const scrollX = window.scrollX;
+      const scrollY = window.scrollY;
+      // Convert viewport rect to page coordinates (ball positions are page-relative)
+      const left   = rect.left   + scrollX - pad;
+      const right  = rect.right  + scrollX + pad;
+      const top    = rect.top    + scrollY - pad;
+      const bottom = rect.bottom + scrollY + pad;
+      const tcx = (left + right) / 2;
+      const tcy = (top  + bottom) / 2;
+
+      for (const b of ballsRef.current) {
+        if (b.isDragging) continue;
+        const bCx = b.x + BALL_SIZE / 2;
+        const bCy = b.y + BALL_SIZE / 2;
+        if (bCx < left || bCx > right || bCy < top || bCy > bottom) continue;
+        const dx   = bCx - tcx;
+        const dy   = bCy - tcy;
+        const dist = Math.sqrt(dx * dx + dy * dy) || 1;
+        b.vx += (dx / dist) * 8;
+        b.vy += (dy / dist) * 8;
+      }
+    });
+  }, [onMount]);
 
   return (
     <>
