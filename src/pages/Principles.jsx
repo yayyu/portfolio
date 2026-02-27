@@ -138,10 +138,12 @@ function StickyCard({ card }) {
     // 1 segment wide, SEG_Y tall for a smooth 3D curl
     const geometry = new THREE.PlaneGeometry(W, H, 1, SEG_Y);
 
+    const dpr = window.devicePixelRatio || 1;
     const offscreen = document.createElement('canvas');
-    offscreen.width  = W;
-    offscreen.height = H;
+    offscreen.width  = W * dpr;
+    offscreen.height = H * dpr;
     const ctx = offscreen.getContext('2d');
+    ctx.scale(dpr, dpr);
 
     const texture  = new THREE.CanvasTexture(offscreen);
     const material = new THREE.MeshBasicMaterial({ map: texture, transparent: true });
