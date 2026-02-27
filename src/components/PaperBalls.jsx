@@ -48,6 +48,8 @@ export default function PaperBalls({ onMount }) {
   const [, forceUpdate] = useState(0);
   const rafRef = useRef(null);
   const dragRef = useRef(null);
+  const repellingRef = useRef(false);
+  const textRectRef  = useRef(null);
 
   const tick = useCallback(() => {
     const balls = ballsRef.current;
@@ -109,6 +111,49 @@ export default function PaperBalls({ onMount }) {
       }
     }
 
+    // Continuous text repulsion — runs each frame until all balls have cleared the text rect
+    if (repellingRef.current && textRectRef.current) {
+      const pad = 8;
+      const r = textRectRef.current;
+      const sx = window.scrollX;
+      const sy = window.scrollY;
+      const rLeft   = r.left   + sx - pad;
+      const rRight  = r.right  + sx + pad;
+      const rTop    = r.top    + sy - pad;
+      const rBottom = r.bottom + sy + pad;
+
+      let anyOverlap = false;
+      for (const b of balls) {
+        if (b.isDragging) continue;
+        // Full ball bounding box vs padded text rect
+        const bLeft   = b.x;
+        const bRight  = b.x + BALL_SIZE;
+        const bTop    = b.y;
+        const bBottom = b.y + BALL_SIZE;
+        if (bRight < rLeft || bLeft > rRight || bBottom < rTop || bTop > rBottom) continue;
+
+        anyOverlap = true;
+        // Ball center
+        const bCx = b.x + BALL_SIZE / 2;
+        const bCy = b.y + BALL_SIZE / 2;
+        // Penetration depth toward each edge (all positive when ball overlaps rect)
+        const dLeft   = bCx - rLeft;
+        const dRight  = rRight - bCx;
+        const dTop    = bCy - rTop;
+        const dBottom = rBottom - bCy;
+        // Push toward whichever edge requires the least travel
+        const minH = Math.min(dLeft, dRight);
+        const minV = Math.min(dTop, dBottom);
+        const FORCE = 4;
+        if (minH < minV) {
+          b.vx += dLeft < dRight ? -FORCE : FORCE;
+        } else {
+          b.vy += dTop < dBottom ? -FORCE : FORCE;
+        }
+      }
+      if (!anyOverlap) repellingRef.current = false;
+    }
+
     // Remove completely out-of-bounds balls
     ballsRef.current = balls.filter(b =>
       b.isDragging || !(
@@ -127,18 +172,6 @@ export default function PaperBalls({ onMount }) {
     rafRef.current = requestAnimationFrame(tick);
     return () => cancelAnimationFrame(rafRef.current);
   }, [tick]);
-
-  // Idle nudge on one ball to hint draggability
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      const ball = ballsRef.current.find(b => b.id === 0);
-      if (ball && !ball.isDragging) {
-        ball.vx = 4;
-        ball.vy = -1.5;
-      }
-    }, 2000);
-    return () => clearTimeout(timer);
-  }, []);
 
   const onPointerDown = useCallback((e, id) => {
     e.preventDefault();
@@ -184,32 +217,12 @@ export default function PaperBalls({ onMount }) {
     dragRef.current = null;
   }, []);
 
-  // Expose repel function to parent via onMount callback
+  // Register the "start repulsion" function with the parent
   useEffect(() => {
     if (!onMount) return;
     onMount((rect) => {
-      const pad = 20;
-      const scrollX = window.scrollX;
-      const scrollY = window.scrollY;
-      // Convert viewport rect to page coordinates (ball positions are page-relative)
-      const left   = rect.left   + scrollX - pad;
-      const right  = rect.right  + scrollX + pad;
-      const top    = rect.top    + scrollY - pad;
-      const bottom = rect.bottom + scrollY + pad;
-      const tcx = (left + right) / 2;
-      const tcy = (top  + bottom) / 2;
-
-      for (const b of ballsRef.current) {
-        if (b.isDragging) continue;
-        const bCx = b.x + BALL_SIZE / 2;
-        const bCy = b.y + BALL_SIZE / 2;
-        if (bCx < left || bCx > right || bCy < top || bCy > bottom) continue;
-        const dx   = bCx - tcx;
-        const dy   = bCy - tcy;
-        const dist = Math.sqrt(dx * dx + dy * dy) || 1;
-        b.vx += (dx / dist) * 8;
-        b.vy += (dy / dist) * 8;
-      }
+      textRectRef.current  = rect;
+      repellingRef.current = true;
     });
   }, [onMount]);
 
