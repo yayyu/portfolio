@@ -128,6 +128,18 @@ export default function PaperBalls() {
     return () => cancelAnimationFrame(rafRef.current);
   }, [tick]);
 
+  // Idle nudge on one ball to hint draggability
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      const ball = ballsRef.current.find(b => b.id === 0);
+      if (ball && !ball.isDragging) {
+        ball.vx = 4;
+        ball.vy = -1.5;
+      }
+    }, 2000);
+    return () => clearTimeout(timer);
+  }, []);
+
   const onPointerDown = useCallback((e, id) => {
     e.preventDefault();
     e.currentTarget.setPointerCapture(e.pointerId);
