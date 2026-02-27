@@ -3,30 +3,27 @@ import * as THREE from 'three';
 
 const cards = [
   {
-    filter: 'sepia(1) saturate(0.6) hue-rotate(10deg)',
+    bgColor: '#d4cf8a',
     textClass: 'text-olive',
-    textColor: '#52480a',
-    tintColor: 'rgba(200, 184, 74, 0.5)',
+    textColor: '#383106',
     icon: '/images/icon-eye.svg',
     lines: ['Symptoms are', 'not the problem'],
     lineSizes: [42, 38],
     back: 'Experiences, behaviors, and constraints are shaped by larger systems. I look beyond surface symptoms to find where the underlying forces actually live.',
   },
   {
-    filter: 'sepia(1) saturate(0.5) hue-rotate(120deg)',
+    bgColor: '#b8cec4',
     textClass: 'text-pine',
-    textColor: '#335744',
-    tintColor: 'rgba(90, 158, 122, 0.5)',
+    textColor: '#0c2c1b',
     icon: '/images/icon-scribble.svg',
     lines: ['Clarity emerges at', 'leverage points'],
     lineSizes: [38, 38],
     back: 'Within complex systems, some points of intervention create disproportionate change. I map these before deciding where design effort will matter most.',
   },
   {
-    filter: 'sepia(1) saturate(0.4) hue-rotate(330deg)',
+    bgColor: '#d9b99a',
     textClass: 'text-terra',
-    textColor: '#624932',
-    tintColor: 'rgba(196, 137, 106, 0.5)',
+    textColor: '#1b0f04',
     icon: '/images/icon-box.svg',
     lines: ['Interaction reveals', 'what reasoning', 'cannot'],
     lineSizes: [38, 38, 38],
@@ -84,10 +81,10 @@ function loadImg(src) {
   });
 }
 
-// Draw the full front face — sticky note texture + icon + text — onto ctx.
-// Color is applied via CSS filter on the canvas wrapper div; no baked-in tint needed.
-function drawFrontFace(ctx, card, stickyImg, iconImg) {
-  ctx.drawImage(stickyImg, 0, 0, W, H);
+// Draw the full front face — solid color background + icon + text — onto ctx.
+function drawFrontFace(ctx, card, iconImg) {
+  ctx.fillStyle = card.bgColor;
+  ctx.fillRect(0, 0, W, H);
 
   // Icon dimensions (scribble icon is wider)
   const iconW = card.icon === '/images/icon-scribble.svg' ? 174 : 95;
@@ -152,14 +149,13 @@ function StickyCard({ card }) {
 
     threeRef.current = { renderer, scene, camera, geometry, material, texture };
 
-    // Wait for both images and the web font before painting the texture
+    // Wait for the icon image and the web font before painting the texture
     Promise.all([
-      loadImg('/images/sticky-note-bottom.png'),
       loadImg(card.icon),
       document.fonts.load('42px "Instrument Serif"'),
-    ]).then(([stickyImg, iconImg]) => {
+    ]).then(([iconImg]) => {
       if (!threeRef.current) return; // component unmounted
-      drawFrontFace(ctx, card, stickyImg, iconImg);
+      drawFrontFace(ctx, card, iconImg);
       texture.needsUpdate = true;
       renderer.render(scene, camera);
     });
@@ -213,17 +209,7 @@ function StickyCard({ card }) {
     >
       {/* Back card — always visible underneath the canvas */}
       <div style={{ position: 'absolute', inset: 0 }}>
-        <div
-          style={{
-            position: 'absolute',
-            inset: 0,
-            backgroundImage: 'url(/images/sticky-note-bottom.png)',
-            backgroundSize: '100% 100%',
-            backgroundRepeat: 'no-repeat',
-            backgroundPosition: 'center',
-            filter: card.filter,
-          }}
-        />
+        <div style={{ position: 'absolute', inset: 0, backgroundColor: card.bgColor }} />
         <div className="flex items-center justify-center p-8" style={{ position: 'absolute', inset: 0 }}>
           <p className={`font-instrument-serif text-[24px] text-center tracking-[-0.48px] ${card.textClass}`}>
             {card.back}
@@ -231,8 +217,8 @@ function StickyCard({ card }) {
         </div>
       </div>
 
-      {/* Front canvas — filter matches back card tint */}
-      <div style={{ position: 'absolute', left: 0, top: 0, zIndex: 1, filter: card.filter }}>
+      {/* Front canvas */}
+      <div style={{ position: 'absolute', left: 0, top: 0, zIndex: 1 }}>
         <canvas ref={canvasRef} style={{ display: 'block' }} />
       </div>
     </div>
