@@ -144,7 +144,7 @@ function StickyCard({ card }) {
     const ctx = offscreen.getContext('2d');
 
     const texture  = new THREE.CanvasTexture(offscreen);
-    const material = new THREE.MeshBasicMaterial({ map: texture, transparent: false });
+    const material = new THREE.MeshBasicMaterial({ map: texture, transparent: true });
     const mesh     = new THREE.Mesh(geometry, material);
     scene.add(mesh);
 
