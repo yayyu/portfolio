@@ -154,7 +154,7 @@ function StickyCard({ card }) {
 
     // Wait for both images and the web font before painting the texture
     Promise.all([
-      loadImg('/images/sticky-note.png'),
+      loadImg('/images/sticky-note-bottom.png'),
       loadImg(card.icon),
       document.fonts.load('42px "Instrument Serif"'),
     ]).then(([stickyImg, iconImg]) => {
