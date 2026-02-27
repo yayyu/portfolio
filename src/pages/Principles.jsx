@@ -192,9 +192,13 @@ function StickyCard({ card }) {
 
     if (shadowRef.current) {
       const p       = progressRef.current;
-      const bottomY = threeRef.current.bottomEdgeCSS;
+      // Clamp so the shadow never strays outside [0, H]: top floored at 0,
+      // height reduced to whatever space remains rather than overflowing.
+      const rawY    = threeRef.current.bottomEdgeCSS;
+      const bottomY = Math.max(0, rawY);
+      const height  = Math.min(60, H - bottomY);
       shadowRef.current.style.top        = `${bottomY}px`;
-      shadowRef.current.style.height     = '60px';
+      shadowRef.current.style.height     = `${height}px`;
       shadowRef.current.style.background =
         `linear-gradient(to bottom, rgba(0,0,0,${p * 0.4}) 0%, rgba(0,0,0,0) 100%)`;
     }
@@ -218,7 +222,7 @@ function StickyCard({ card }) {
 
   return (
     <div
-      style={{ position: 'relative', width: `${W}px`, height: `${H}px`, overflow: 'hidden' }}
+      style={{ position: 'relative', width: `${W}px`, height: `${H}px` }}
       onMouseEnter={handleEnter}
       onMouseLeave={handleLeave}
     >
