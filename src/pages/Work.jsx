@@ -36,8 +36,8 @@ function ProjectCard({ project }) {
         overflow: 'hidden',
       }}
     >
-      {/* Placeholder image — aspect ratio 527:333 */}
-      <div className="bg-gray-200 animate-pulse aspect-[527/333]" />
+      {/* Placeholder image — fixed 333px height matching Figma spec */}
+      <div className="bg-gray-200 animate-pulse h-[333px]" />
 
       {/* Card info */}
       <div
