@@ -231,8 +231,8 @@ function StickyCard({ card }) {
         </div>
       </div>
 
-      {/* Front canvas — no filter; sticky-note.png renders as-is */}
-      <div style={{ position: 'absolute', left: 0, top: 0, zIndex: 1 }}>
+      {/* Front canvas — filter matches back card tint */}
+      <div style={{ position: 'absolute', left: 0, top: 0, zIndex: 1, filter: card.filter }}>
         <canvas ref={canvasRef} style={{ display: 'block' }} />
       </div>
     </div>
