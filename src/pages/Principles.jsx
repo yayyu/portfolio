@@ -229,8 +229,8 @@ function StickyCard({ card }) {
         </div>
       </div>
 
-      {/* Front canvas — CSS filter wrapper matches back card coloring exactly */}
-      <div style={{ position: 'absolute', left: 0, top: 0, zIndex: 1, filter: card.filter }}>
+      {/* Front canvas — no filter; sticky-note.png renders as-is */}
+      <div style={{ position: 'absolute', left: 0, top: 0, zIndex: 1 }}>
         <canvas ref={canvasRef} style={{ display: 'block' }} />
       </div>
     </div>
