@@ -111,6 +111,7 @@ function drawFrontFace(ctx, card, iconImg) {
 
 function StickyCard({ card }) {
   const canvasRef     = useRef(null);
+  const shadowRef     = useRef(null);
   const threeRef      = useRef(null);
   const rafRef        = useRef(null);
   const progressRef   = useRef(0);
@@ -185,6 +186,14 @@ function StickyCard({ card }) {
     deformCurl(geometry, progressRef.current);
     renderer.render(scene, camera);
 
+    if (shadowRef.current) {
+      const p = progressRef.current;
+      const opacity = p * 0.35;
+      const spread  = Math.round(p * 60);
+      shadowRef.current.style.background =
+        `linear-gradient(to top, rgba(0,0,0,${opacity}) 0%, rgba(0,0,0,0) ${spread}%)`;
+    }
+
     if (!settled) rafRef.current = requestAnimationFrame(doFrame);
   };
 
@@ -219,6 +228,12 @@ function StickyCard({ card }) {
           </div>
         </div>
       </div>
+
+      {/* Shadow — sits above back card, below front canvas; driven by doFrame */}
+      <div
+        ref={shadowRef}
+        style={{ position: 'absolute', inset: 0, zIndex: 0, pointerEvents: 'none' }}
+      />
 
       {/* Front canvas */}
       <div style={{ position: 'absolute', left: 0, top: 0, zIndex: 1 }}>
