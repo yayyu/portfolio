@@ -3,7 +3,7 @@ import * as THREE from 'three';
 
 const cards = [
   {
-    bgColor: '#d4cf8a',
+    bgColor: '#E5DEB2',
     textClass: 'text-olive',
     textColor: '#383106',
     icon: '/images/icon-eye.svg',
@@ -12,18 +12,18 @@ const cards = [
     back: 'What appears broken is often an effect, not the cause.\n\nFirst solutions tend to treat the symptom, which is why I step back and explore the system before deciding what to change.',
   },
   {
-    bgColor: '#b8cec4',
+    bgColor: '#D7DDD2',
     textClass: 'text-pine',
-    textColor: '#0c2c1b',
+    textColor: '#0C2C1B',
     icon: '/images/icon-scribble.svg',
     lines: ['Clarity emerges at', 'leverage points'],
     lineSizes: [38, 38],
     back: 'Complex systems present many possible directions, but not all of them meaningfully change outcomes.\n\nIdentifying leverage points transforms ambiguity into clear opportunities for intervention.',
   },
   {
-    bgColor: '#d9b99a',
+    bgColor: '#E7D4C0',
     textClass: 'text-terra',
-    textColor: '#1b0f04',
+    textColor: '#1B0F04',
     icon: '/images/icon-box.svg',
     lines: ['Interaction reveals', 'what reasoning', 'cannot'],
     lineSizes: [38, 38, 38],
@@ -184,14 +184,19 @@ function StickyCard({ card }) {
 
     const { renderer, scene, camera, geometry } = threeRef.current;
     deformCurl(geometry, progressRef.current);
+    // Track the bottom row's actual world Y and convert to CSS-pixel top.
+    // Camera maps world Y=+H/2 → CSS top=0, Y=-H/2 → CSS top=H, so:
+    //   cssTop = H/2 - worldY
+    threeRef.current.bottomEdgeCSS = H / 2 - geometry.attributes.position.getY(SEG_Y * 2);
     renderer.render(scene, camera);
 
     if (shadowRef.current) {
-      const p = progressRef.current;
-      const opacity = p * 0.35;
-      const spread  = Math.round(p * 60);
+      const p       = progressRef.current;
+      const bottomY = threeRef.current.bottomEdgeCSS;
+      shadowRef.current.style.top        = `${bottomY}px`;
+      shadowRef.current.style.height     = '60px';
       shadowRef.current.style.background =
-        `linear-gradient(to top, rgba(0,0,0,${opacity}) 0%, rgba(0,0,0,0) ${spread}%)`;
+        `linear-gradient(to bottom, rgba(0,0,0,${p * 0.4}) 0%, rgba(0,0,0,0) 100%)`;
     }
 
     if (!settled) rafRef.current = requestAnimationFrame(doFrame);
@@ -229,10 +234,10 @@ function StickyCard({ card }) {
         </div>
       </div>
 
-      {/* Shadow — sits above back card, below front canvas; driven by doFrame */}
+      {/* Shadow — tracks the lifted bottom edge; driven by doFrame */}
       <div
         ref={shadowRef}
-        style={{ position: 'absolute', inset: 0, zIndex: 0, pointerEvents: 'none' }}
+        style={{ position: 'absolute', left: 0, right: 0, zIndex: 0, pointerEvents: 'none' }}
       />
 
       {/* Front canvas */}
