@@ -34,7 +34,7 @@ const cards = [
 const W = 351;
 const H = 342;
 const SEG_Y = 32;
-const MAX_CURL = Math.PI * 0.6; // 108° — curl without vertices escaping the frustum
+const MAX_CURL = Math.PI * 0.35; // 63° — stays below vertical so cos never goes negative, preventing fold-back and face culling
 
 // v: 0 = bottom segment (curls first), 1 = top segment (curls last, 0.4 lag)
 function localProgress(p, v) {
