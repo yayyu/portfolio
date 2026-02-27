@@ -143,6 +143,7 @@ function StickyCard({ card }) {
     ctx.scale(dpr, dpr);
 
     const texture  = new THREE.CanvasTexture(offscreen);
+    texture.colorSpace = THREE.SRGBColorSpace;
     const material = new THREE.MeshBasicMaterial({ map: texture, transparent: true });
     const mesh     = new THREE.Mesh(geometry, material);
     scene.add(mesh);
