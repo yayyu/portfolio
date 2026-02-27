@@ -48,8 +48,9 @@ export default function PaperBalls({ onMount }) {
   const [, forceUpdate] = useState(0);
   const rafRef = useRef(null);
   const dragRef = useRef(null);
-  const repellingRef = useRef(false);
-  const textRectRef  = useRef(null);
+  const repellingRef    = useRef(false);
+  const textRectRef     = useRef(null);
+  const repelledOnceRef = useRef(false);
 
   const tick = useCallback(() => {
     const balls = ballsRef.current;
@@ -115,7 +116,7 @@ export default function PaperBalls({ onMount }) {
 
     // Continuous text repulsion — runs each frame until all balls have cleared the text rect
     if (repellingRef.current && textRectRef.current) {
-      const pad = 8;
+      const pad = 4;
       const r = textRectRef.current;
       const sx = window.scrollX;
       const sy = window.scrollY;
@@ -153,7 +154,10 @@ export default function PaperBalls({ onMount }) {
           b.vy += dTop < dBottom ? -FORCE : FORCE;
         }
       }
-      if (!anyOverlap) repellingRef.current = false;
+      if (!anyOverlap) {
+        repellingRef.current    = false;
+        repelledOnceRef.current = true; // disable for all future hovers
+      }
     }
 
     // Remove completely out-of-bounds balls
@@ -223,6 +227,7 @@ export default function PaperBalls({ onMount }) {
   useEffect(() => {
     if (!onMount) return;
     onMount((rect) => {
+      if (repelledOnceRef.current) return;
       textRectRef.current  = rect;
       repellingRef.current = true;
     });
