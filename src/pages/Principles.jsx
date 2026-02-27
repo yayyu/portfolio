@@ -6,32 +6,38 @@ const cards = [
     filter: 'sepia(1) saturate(0.6) hue-rotate(10deg)',
     textClass: 'text-olive',
     textColor: '#52480a',
+    tintColor: 'rgba(200, 184, 74, 0.5)',
     icon: '/images/icon-eye.svg',
-    text: 'Problems rarely live where they first appear',
-    back: 'Experiences, behaviors, and constraints are shaped by larger systems. I look beyond surface pain points to understand where the underlying forces are at play.',
+    lines: ['Symptoms are', 'not the problem'],
+    lineSizes: [42, 38],
+    back: 'Experiences, behaviors, and constraints are shaped by larger systems. I look beyond surface symptoms to find where the underlying forces actually live.',
   },
   {
     filter: 'sepia(1) saturate(0.5) hue-rotate(120deg)',
     textClass: 'text-pine',
     textColor: '#335744',
+    tintColor: 'rgba(90, 158, 122, 0.5)',
     icon: '/images/icon-scribble.svg',
-    text: 'Design should intervene at leverage points',
-    back: 'Within that system, there are multiple points where change is possible. I identify and compare potential leverage points before deciding where design can create the most meaningful shift.',
+    lines: ['Clarity emerges at', 'leverage points'],
+    lineSizes: [38, 38],
+    back: 'Within complex systems, some points of intervention create disproportionate change. I map these before deciding where design effort will matter most.',
   },
   {
     filter: 'sepia(1) saturate(0.4) hue-rotate(330deg)',
     textClass: 'text-terra',
     textColor: '#624932',
+    tintColor: 'rgba(196, 137, 106, 0.5)',
     icon: '/images/icon-box.svg',
-    text: 'Clarity emerges through testing',
-    back: 'The strongest direction reveals itself through experimentation. I develop designs around identified leverage points and test them early, using learning to decide which should guide the final experience.',
+    lines: ['Interaction reveals', 'what reasoning', 'cannot'],
+    lineSizes: [38, 38, 38],
+    back: 'The strongest directions emerge through testing, not deliberation. I build early, put work in front of people, and let real use reshape the design.',
   },
 ];
 
 const W = 351;
 const H = 342;
 const SEG_Y = 32;
-const MAX_CURL = Math.PI * 0.85; // 153° — full peel without doubling back
+const MAX_CURL = Math.PI * 0.6; // 108° — curl without vertices escaping the frustum
 
 // v: 0 = bottom segment (curls first), 1 = top segment (curls last, 0.4 lag)
 function localProgress(p, v) {
@@ -78,60 +84,46 @@ function loadImg(src) {
   });
 }
 
-function wrapText(ctx, text, maxWidth) {
-  const words = text.split(' ');
-  const lines = [];
-  let line = '';
-  for (const word of words) {
-    const candidate = line ? `${line} ${word}` : word;
-    if (line && ctx.measureText(candidate).width > maxWidth) {
-      lines.push(line);
-      line = word;
-    } else {
-      line = candidate;
-    }
-  }
-  if (line) lines.push(line);
-  return lines;
-}
-
-// Draw the full front face — sticky note texture + icon + text — onto ctx.
-// Color tinting is handled at the CSS level (filter on wrapper div), not here.
+// Draw the full front face — sticky note texture + tint + icon + text — onto ctx.
+// Tint is applied via multiply blend directly on the canvas; no CSS filter needed.
 function drawFrontFace(ctx, card, stickyImg, iconImg) {
   ctx.drawImage(stickyImg, 0, 0, W, H);
+
+  // Multiply tint — simulates Figma color overlay; white pixels become tintColor
+  ctx.globalCompositeOperation = 'multiply';
+  ctx.fillStyle = card.tintColor;
+  ctx.fillRect(0, 0, W, H);
+  ctx.globalCompositeOperation = 'source-over';
 
   // Icon dimensions (scribble icon is wider)
   const iconW = card.icon === '/images/icon-scribble.svg' ? 174 : 95;
   const iconH = card.icon === '/images/icon-scribble.svg' ? 98  : 95;
-  const gap     = 16; // gap-4
-  const padding = 32; // p-8
+  const gap    = 16; // gap-4
+  const lineH  = 44; // leading between text lines
 
-  // Set up text style for measuring
-  ctx.font = '42px "Instrument Serif"';
-  if ('letterSpacing' in ctx) ctx.letterSpacing = '-0.84px';
-  const lines  = wrapText(ctx, card.text, W - padding * 2);
-  const lineH  = 40; // leading-[40px]
-  const totalH = iconH + gap + lines.length * lineH;
+  const totalH = iconH + gap + card.lines.length * lineH;
   const startY = (H - totalH) / 2;
 
   // Icon — centered horizontally
   ctx.drawImage(iconImg, (W - iconW) / 2, startY, iconW, iconH);
 
-  // Text lines
-  ctx.fillStyle   = card.textColor;
-  ctx.textAlign   = 'center';
+  // Text lines — each drawn with its own font size
+  ctx.fillStyle    = card.textColor;
+  ctx.textAlign    = 'center';
   ctx.textBaseline = 'top';
-  lines.forEach((line, i) => {
+  if ('letterSpacing' in ctx) ctx.letterSpacing = '-0.84px';
+  card.lines.forEach((line, i) => {
+    ctx.font = `${card.lineSizes[i]}px "Instrument Serif"`;
     ctx.fillText(line, W / 2, startY + iconH + gap + i * lineH);
   });
 }
 
 function StickyCard({ card }) {
-  const canvasRef    = useRef(null);
-  const threeRef     = useRef(null);
-  const rafRef       = useRef(null);
-  const progressRef  = useRef(0);
-  const targetRef    = useRef(0);
+  const canvasRef     = useRef(null);
+  const threeRef      = useRef(null);
+  const rafRef        = useRef(null);
+  const progressRef   = useRef(0);
+  const targetRef     = useRef(0);
   // Bypasses the settlement check on the very first frame after each direction change,
   // preventing the loop from exiting immediately if diff is tiny at the moment of trigger.
   const firstFrameRef = useRef(false);
@@ -144,8 +136,9 @@ function StickyCard({ card }) {
     renderer.setClearColor(0x000000, 0);
 
     const scene  = new THREE.Scene();
-    // OrthographicCamera exactly sized to the card — no perspective distortion
-    const camera = new THREE.OrthographicCamera(-W / 2, W / 2, H / 2, -H / 2, 0.1, 10000);
+    // OrthographicCamera exactly sized to the card — no perspective distortion.
+    // Far plane extended to 50000 to prevent clipping of high-Z curl vertices.
+    const camera = new THREE.OrthographicCamera(-W / 2, W / 2, H / 2, -H / 2, 0.1, 50000);
     camera.position.z = 1000;
 
     // 1 segment wide, SEG_Y tall for a smooth 3D curl
@@ -187,12 +180,12 @@ function StickyCard({ card }) {
 
   const doFrame = () => {
     if (!threeRef.current) return;
-    const diff     = targetRef.current - progressRef.current;
-    const isFirst  = firstFrameRef.current;
+    const diff    = targetRef.current - progressRef.current;
+    const isFirst = firstFrameRef.current;
     firstFrameRef.current = false;
     // Skip settlement check on the first frame so a direction change always
     // advances at least one step, even if diff is below the threshold.
-    const settled  = !isFirst && Math.abs(diff) < 0.001;
+    const settled = !isFirst && Math.abs(diff) < 0.001;
     progressRef.current = settled ? targetRef.current : progressRef.current + diff * 0.04;
 
     const { renderer, scene, camera, geometry } = threeRef.current;
@@ -242,11 +235,8 @@ function StickyCard({ card }) {
         </div>
       </div>
 
-      {/* CSS filter wrapper — applying filter here is more reliable than ctx.filter
-          on the 2D canvas, which has colorspace inconsistencies in some browsers. */}
-      <div style={{ position: 'absolute', inset: 0, zIndex: 1, filter: card.filter }}>
-        <canvas ref={canvasRef} style={{ position: 'absolute', left: 0, top: 0 }} />
-      </div>
+      {/* Front canvas — tint baked into texture, no CSS filter wrapper needed */}
+      <canvas ref={canvasRef} style={{ position: 'absolute', left: 0, top: 0, zIndex: 1 }} />
     </div>
   );
 }
@@ -255,7 +245,7 @@ export default function Principles() {
   return (
     <section className="w-full bg-cream pt-48 pb-24 px-8">
       <h2 className="font-instrument-serif text-ink text-center text-[clamp(2rem,4vw,3.5rem)] tracking-tight mb-16">
-        My principles for designing in complex systems
+        Design principles for complex problems
       </h2>
 
       <div className="flex justify-center gap-9 flex-wrap">
