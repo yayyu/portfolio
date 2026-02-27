@@ -200,7 +200,7 @@ function StickyCard({ card }) {
       shadowRef.current.style.top        = `${bottomY}px`;
       shadowRef.current.style.height     = `${height}px`;
       shadowRef.current.style.background =
-        `linear-gradient(to bottom, rgba(0,0,0,${p * 0.4}) 0%, rgba(0,0,0,0) 100%)`;
+        `linear-gradient(to bottom, rgba(0,0,0,${p * 0.2}) 0%, rgba(0,0,0,0) 100%)`;
     }
 
     if (!settled) rafRef.current = requestAnimationFrame(doFrame);
