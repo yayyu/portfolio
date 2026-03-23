@@ -1,4 +1,5 @@
 import useFadeIn from '../hooks/useFadeIn';
+import { MdBackgroundGridSmall, MdConversation, MdAccountTree, MdQuestionMark, MdBackHand, MdDisabledVisible, MdCognition, MdDeskphone } from 'react-icons/md';
 
 const PX = 'px-[120px]';
 const GREEN = '#4c863c';
@@ -274,9 +275,9 @@ function DesignProcess() {
 
 function UserResearch() {
   const methods = [
-    { icon: '/images/deserto/icon-grid.png', title: 'Competitive analysis', desc: 'We benchmarked existing discovery tools to understand what patterns enabled students to find campus offerings.' },
-    { icon: '/images/deserto/icon-conversation.png', title: 'Stakeholder interviews', desc: 'We held semi-structured interviews with both students and higher-up staff running Dartmouth organizations.' },
-    { icon: '/images/deserto/icon-tree.png', title: 'Systems mapping', desc: "We mapped the information ecosystem – surfacing why resources weren't reaching the students they were built for." },
+    { Icon: MdBackgroundGridSmall, title: 'Competitive analysis', desc: 'We benchmarked existing discovery tools to understand what patterns enabled students to find campus offerings.' },
+    { Icon: MdConversation, title: 'Stakeholder interviews', desc: 'We held semi-structured interviews with both students and higher-up staff running Dartmouth organizations.' },
+    { Icon: MdAccountTree, title: 'Systems mapping', desc: "We mapped the information ecosystem – surfacing why resources weren't reaching the students they were built for." },
   ];
 
   return (
@@ -295,9 +296,9 @@ function UserResearch() {
           <p className="font-dm-sans font-light text-[16px] tracking-[-0.32px] leading-6" style={{ fontVariationSettings: "'opsz' 14" }}>We came in assuming awareness was the issue – that students just didn't know enough about what Dartmouth offered. Interviews told a different story. Students weren't passive or disinterested. The system was working against them.</p>
         </div>
         <div className="flex gap-6 items-center w-full">
-          {methods.map(({ icon, title, desc }) => (
+          {methods.map(({ Icon, title, desc }) => (
             <div key={title} className="flex-1 border border-[#c3c3c3] rounded-[24px] p-6 flex flex-col gap-6">
-              <img src={icon} alt="" className="w-6 h-6" />
+              <Icon size={24} />
               <p className="font-dm-sans font-normal text-[24px] tracking-[-0.48px] leading-9 text-ink" style={{ fontVariationSettings: "'opsz' 14" }}>{title}</p>
               <p className="font-dm-sans font-light text-[16px] tracking-[-0.32px] leading-6 text-ink" style={{ fontVariationSettings: "'opsz' 14" }}>{desc}</p>
             </div>
@@ -487,26 +488,26 @@ function InformationArchitecture() {
 
 function DesignRevamp() {
   const before = [
-    { icon: '/images/deserto/icon-question.png', title: 'No search or immediate CTA', desc: 'The hero was an animated image scroll with a logo. Students had no way to act immediately – no search bar, no entry point beyond scrolling down.' },
-    { icon: '/images/deserto/icon-hand.png', title: 'Too much telling, not much doing', desc: "Sections like \"Facilities at Dartmouth\" described what existed rather than letting students interact with it directly. See more's action was visually ambiguous." },
-    { icon: '/images/deserto/icon-visibility.png', title: 'Unreliable text handling in photo-heavy components', desc: 'Different photos have varying levels of brightness. This version of text handling was unreliable and not accessibility-friendly.' },
-    { icon: '/images/deserto/icon-cognition.png', title: 'Explore section was overwhelming', desc: 'The dark explore section surfaced every category at once in a dense grid with no hierarchy – creating choice paralysis instead of enabling discovery.' },
-    { icon: '/images/deserto/icon-phone.png', title: 'Visual language felt outdated', desc: 'The inconsistent type scale, muted palette, and mixed layout patterns didn\'t feel cohesive or polished.' },
+    { Icon: MdQuestionMark, title: 'No search or immediate CTA', desc: 'The hero was an animated image scroll with a logo. Students had no way to act immediately – no search bar, no entry point beyond scrolling down.' },
+    { Icon: MdBackHand, title: 'Too much telling, not much doing', desc: "Sections like \"Facilities at Dartmouth\" described what existed rather than letting students interact with it directly. See more's action was visually ambiguous." },
+    { Icon: MdDisabledVisible, title: 'Unreliable text handling in photo-heavy components', desc: 'Different photos have varying levels of brightness. This version of text handling was unreliable and not accessibility-friendly.' },
+    { Icon: MdCognition, title: 'Explore section was overwhelming', desc: 'The dark explore section surfaced every category at once in a dense grid with no hierarchy – creating choice paralysis instead of enabling discovery.' },
+    { Icon: MdDeskphone, title: 'Visual language felt outdated', desc: 'The inconsistent type scale, muted palette, and mixed layout patterns didn\'t feel cohesive or polished.' },
   ];
 
   const after = [
-    { icon: '/images/deserto/icon-question-2.png', title: 'Search-first entry', desc: 'A prominent search bar with contextual prompt suggestions replaced the passive homepage – enabling students to act immediately if they choose to do so.' },
-    { icon: '/images/deserto/icon-hand-2.png', title: 'Progressive decision funnel', desc: "Each section is a fallback – Explore by category, then Upcoming Events, then What's Popular. Students finds something regardless of how specific their intent is." },
-    { icon: '/images/deserto/icon-visibility-2.png', title: 'Focused navigation', desc: 'Five clear top-level sections – Experiences, Events, Eateries, Rentals, Facilities – replaced the sprawling Explore dropdown grid.' },
-    { icon: '/images/deserto/icon-phone-2.png', title: 'Cohesive visual system', desc: 'A clean, consistent design language built on strong typography, rich photography, and a component library designed for engineer handoff.' },
+    { Icon: MdQuestionMark, title: 'Search-first entry', desc: 'A prominent search bar with contextual prompt suggestions replaced the passive homepage – enabling students to act immediately if they choose to do so.' },
+    { Icon: MdBackHand, title: 'Progressive decision funnel', desc: "Each section is a fallback – Explore by category, then Upcoming Events, then What's Popular. Students finds something regardless of how specific their intent is." },
+    { Icon: MdDisabledVisible, title: 'Focused navigation', desc: 'Five clear top-level sections – Experiences, Events, Eateries, Rentals, Facilities – replaced the sprawling Explore dropdown grid.' },
+    { Icon: MdDeskphone, title: 'Cohesive visual system', desc: 'A clean, consistent design language built on strong typography, rich photography, and a component library designed for engineer handoff.' },
   ];
 
-  function IssueCard({ icon, title, desc, variant }) {
+  function IssueCard({ Icon, title, desc, variant }) {
     const iconBg = variant === 'before' ? '#f3e6de' : '#d9e4de';
     return (
       <div className="bg-white border border-[#dfdfdf] rounded-[16px] flex gap-6 items-start p-6 w-full">
         <div className="rounded-[8px] p-1 shrink-0" style={{ backgroundColor: iconBg }}>
-          <img src={icon} alt="" className="w-5 h-5" />
+          <Icon size={20} />
         </div>
         <div className="flex flex-col gap-[18px] pt-1">
           <p className="font-dm-sans font-medium text-[18px] text-ink tracking-[-0.72px] leading-6" style={{ fontVariationSettings: "'opsz' 14" }}>{title}</p>

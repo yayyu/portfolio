@@ -125,6 +125,10 @@ Wrapper component in Deserto: `<Fade>` applies both the ref and the class.
 
 All Deserto images are in `public/images/deserto/`. Served as static assets — reference as `/images/deserto/filename.png` in JSX.
 
+## Icons
+
+Using `react-icons/md` (Google Material Icons). Icon names come directly from the Figma layer name, converted to PascalCase with `Md` prefix. Examples: layer `conversation` → `MdConversation`, `account_tree` → `MdAccountTree`, `back_hand` → `MdBackHand`. Import once per file, reuse as needed. Render as a component: `<MdConversation size={24} />`. Never use Figma asset URLs for icons.
+
 ## Git
 
 - Branch: `main`
