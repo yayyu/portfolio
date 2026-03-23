@@ -26,7 +26,7 @@ function GreenItalic({ children }) {
 }
 
 function HRule() {
-  return <div className={`${PX} w-full`}><div className="h-px w-full bg-[#c3c3c3]" /></div>;
+  return <div className={`w-full max-w-[1440px] mx-auto ${PX}`}><div className="h-px w-full bg-[#c3c3c3]" /></div>;
 }
 
 function Tag({ label }) {
@@ -96,7 +96,7 @@ function MetaBar() {
   ];
 
   return (
-    <Fade className={`w-full max-w-[1440px] mx-auto ${PX} py-16 flex items-center justify-between`}>
+    <Fade className={`w-full max-w-[1440px] mx-auto ${PX} py-12 flex items-center justify-between`}>
       {/* HMW */}
       <p className="font-instrument-serif italic text-[24px] text-[#5d5d5d] w-[248px] leading-normal">
         How might we help students discover what they didn't know to look for?
@@ -143,7 +143,7 @@ function MetaBar() {
 
 function Overview() {
   return (
-    <Fade className={`w-full max-w-[1440px] mx-auto ${PX} flex flex-col gap-9`}>
+    <Fade className={`w-full max-w-[1440px] mx-auto ${PX} flex flex-col gap-12`}>
       <SectionLabel>OVERVIEW</SectionLabel>
       <div className="relative w-full" style={{ height: 490 }}>
         {/* Polaroid */}
@@ -280,7 +280,7 @@ function UserResearch() {
   ];
 
   return (
-    <div className={`w-full max-w-[1440px] mx-auto ${PX} flex flex-col gap-9`}>
+    <div className={`w-full max-w-[1440px] mx-auto ${PX} flex flex-col gap-12`}>
       <Fade>
         <SectionLabel>USER RESEARCH</SectionLabel>
       </Fade>
@@ -593,7 +593,7 @@ export default function Deserto({ onBack }) {
     <div className="bg-[#f8f8f8] w-full">
       <Hero onBack={onBack} />
 
-      <div className="flex flex-col gap-24 py-24">
+      <div className="flex flex-col gap-16 py-12">
         <MetaBar />
         <HRule />
         <Overview />
