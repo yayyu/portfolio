@@ -134,3 +134,26 @@ Using `react-icons/md` (Google Material Icons). Icon names come directly from th
 - Branch: `main`
 - Remote: origin (GitHub)
 - Git identity: `yayyu.design@gmail.com` / `YaYing Yu` (repo-scoped config)
+
+## Spacing Fidelity Rules
+When implementing from Figma, always use the exact px value from the design as 
+an arbitrary Tailwind value — do not round to the nearest Tailwind default.
+Examples:
+- Figma gap: 94px → use gap-[94px], not gap-24 (96px)
+- Figma padding: 48px → use py-12 (exact match)
+- Figma gap: 69px → use gap-[69px], not gap-16
+
+Only substitute a Tailwind default if it matches exactly.
+
+## Figma-to-Code Workflow
+For each new section:
+1. Call get_design_context on the specific node
+2. Read exact px values for padding, gap, width, font-size, letter-spacing
+3. Use arbitrary values for anything that doesn't match a Tailwind default exactly
+4. Never approximate spacing — pixel accuracy matters for portfolio work
+
+## Common Mistakes to Avoid
+- Do NOT use gap-24 (96px) for section gaps — Figma uses 64px (gap-16) max
+- Do NOT use py-24 (96px) for section padding
+- Do NOT substitute Tailwind spacing defaults when they don't match exactly
+- Do NOT guess font sizes — always read from Figma
