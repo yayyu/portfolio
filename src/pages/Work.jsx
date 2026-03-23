@@ -91,7 +91,7 @@ export default function Work() {
               name="IDEAs Lab"
               subtitle="Spatial redesign of Dartmouth's multimedia lab"
               description="Redesigned a physical multimedia lab space through competitive analysis, workshops, and floor planning — delivering a report that triggered an architect-led feasibility study at Dartmouth"
-              tags={['Spatial', 'User Research', 'Prototyping', 'Workshops']}
+              tags={['Spatial', 'User Research', 'Prototyping']}
             />
           </div>
         </div>
