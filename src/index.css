@@ -30,3 +30,14 @@ html, body, #root {
 .animate-bounce-soft {
   animation: bounce-soft 1.5s ease-in-out infinite;
 }
+
+/* Scroll fade-in */
+.fade-section {
+  opacity: 0;
+  transform: translateY(28px);
+  transition: opacity 0.65s ease, transform 0.65s ease;
+}
+.fade-section.visible {
+  opacity: 1;
+  transform: translateY(0);
+}

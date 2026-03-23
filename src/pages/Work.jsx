@@ -12,11 +12,17 @@ function Tag({ label }) {
   );
 }
 
-function DesertCard() {
+function DesertCard({ onNavigate }) {
   return (
-    <div className="bg-white rounded-[16px] shadow-[0px_4px_12px_0px_rgba(0,0,0,0.16)] overflow-hidden flex flex-col" style={{ height: 540 }}>
+    <div
+      className="bg-white rounded-[16px] shadow-[0px_4px_12px_0px_rgba(0,0,0,0.16)] overflow-hidden flex flex-col cursor-pointer hover:shadow-[0px_8px_24px_0px_rgba(0,0,0,0.2)] transition-shadow"
+      style={{ height: 540 }}
+      onClick={() => onNavigate('/deserto')}
+    >
       {/* Photo placeholder */}
-      <div className="flex-1 bg-gray-100 animate-pulse min-h-0" />
+      <div className="flex-1 bg-gray-100 min-h-0 overflow-hidden">
+        <img src="/images/deserto/screen-landing.png" alt="Deserto" className="w-full h-full object-cover object-top" />
+      </div>
 
       {/* Info */}
       <div className="flex flex-col justify-between border-t border-[#868686]" style={{ height: 256, padding: '16px 24px 24px' }}>
@@ -67,7 +73,7 @@ function SmallCard({ name, subtitle, description, tags }) {
   );
 }
 
-export default function Work() {
+export default function Work({ onNavigate }) {
   return (
     <section className="w-full bg-[#f8f8f8]" style={{ paddingTop: 80, paddingBottom: 80 }}>
       <div style={{ maxWidth: 942, margin: '0 auto', padding: '0 24px' }}>
@@ -77,7 +83,7 @@ export default function Work() {
 
         <div className="flex flex-col gap-12">
           {/* Full-width card */}
-          <DesertCard />
+          <DesertCard onNavigate={onNavigate} />
 
           {/* Two half-width cards */}
           <div className="flex gap-12">
