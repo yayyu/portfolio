@@ -80,8 +80,8 @@ export default function Navbar() {
         }}
       >
         <p className="font-instrument-serif text-ink text-[48px] tracking-[-4.8px]">yaying.</p>
-        <div className="flex gap-10 font-instrument-serif text-ink text-[36px] tracking-[-1.8px]">
-          <span>work</span>
+        <div className="flex gap-10 font-dm-sans font-normal text-ink text-[24px] tracking-[-1.2px]" style={{ fontVariationSettings: "'opsz' 14" }}>
+          <span>design</span>
           <span>research</span>
           <span>studio</span>
           <span>about</span>

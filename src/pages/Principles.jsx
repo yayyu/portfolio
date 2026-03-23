@@ -254,7 +254,7 @@ function StickyCard({ card }) {
 
 export default function Principles() {
   return (
-    <section className="w-full bg-cream pt-48 pb-24 px-8">
+    <section className="w-full bg-[#f8f8f8] pt-48 pb-24 px-8">
       <h2 className="font-instrument-serif text-ink text-center text-[clamp(2rem,4vw,3.5rem)] tracking-tight mb-16">
         Design principles for complex problems
       </h2>
@@ -265,8 +265,9 @@ export default function Principles() {
         ))}
       </div>
 
-      <p className="font-instrument-serif italic text-[36px] text-center tracking-[-0.72px] text-black max-w-[925px] mx-auto mt-12">
-        My work focuses first on diagnosing systems and guiding intervention— then refining the designs that express it.
+      <p className="font-dm-sans font-light italic text-[24px] text-center tracking-[-0.48px] text-ink max-w-[925px] mx-auto mt-12" style={{ fontVariationSettings: "'opsz' 14" }}>
+        My work focuses first on diagnosing systems and guiding intervention.<br />
+        Then I refine the designs that express it.
       </p>
     </section>
   );
